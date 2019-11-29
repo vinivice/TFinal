@@ -6,18 +6,54 @@
 
 //#define PSIZE 10
 //#define NGEN 500000
-#define MUT_PROB 0.05
+#define MUT_PROB 0.5
+#define CHROMO_SIZE 44
 
 struct Individual 
 {
     float fitness;
-    unsigned int chromossomes;
+    char chromossomes[CHROMO_SIZE];
 };
 
 bool comparator (Individual i, Individual j)
 {
     return (i.fitness > j.fitness);
 }
+
+void printPop(Individual *population, int popSize)
+{
+    printf("%f = \n", population[0].fitness);
+    /*
+    for(int i = 0; i < popSize; i++)
+    {
+        printf("%f = \n", population[i].fitness);
+        for(int j = 0; j < CHROMO_SIZE; j++)
+        {
+                printf("%.2f;", (population[i].chromossomes[j] / 128.0) * 5.0);
+        }
+        printf("\n");
+    }
+    printf("=======================\n");
+    */
+}
+
+float fitness(Individual *population, int popSize)
+{
+    float totalFitness = 0;
+    for(int i = 0; i < popSize; i++)
+    {
+        float subTotal = 0;
+        for(int j = 0; j < CHROMO_SIZE; j++)
+        {
+            float x = (population[i].chromossomes[j] / 128.0) * 5.0;
+            subTotal += (x*x*x*x - 16.0*x*x + 5.0*x) / 2.0;
+        }
+        population[i].fitness = 1.0 / (40.0*CHROMO_SIZE + subTotal);
+        totalFitness += population[i].fitness;
+    }
+    return totalFitness;
+}
+
 
 
 int main(int argc, char *argv[ ]) 
@@ -47,56 +83,41 @@ int main(int argc, char *argv[ ])
 
         srandom(time(NULL));
 
-        unsigned int mask = 0x3FF;
-        ////printf("%x - %x - %x\n", mask, mask << 10, mask << 20);
-        float a = 0, b = 0, c = 0;
+        float totalFitness = 0;
+
 
         //Create population
         for(int i = 0; i < PSIZE; i++)
         {
             population[i].fitness = 0;
-            population[i].chromossomes = random();
+            for(int j = 0; j < CHROMO_SIZE; j++)
+            {
+                population[i].chromossomes[j] = random()%256 - 128;
+            }
         }
-    /*
-        for(int i = 0; i < PSIZE; i++)
-        {
-            //printf("%f - ", population[i].fitness);
-        }
-    */
+ //       printPop(population, PSIZE);
+
         start = clock();
         for(int i = 0; i < NGEN; i++)
         {
             //Calculate fitness
-            float totalFitness = 0;
-            for(int i = 0; i < PSIZE; i++)
-            {
-                a = population[i].chromossomes & mask;
-                b = (population[i].chromossomes & (mask << 9)) >> 9;
-                c = (population[i].chromossomes & (mask << 18)) >> 18;
-         
-                a = (a - 512)/100.0;
-                b = (b - 512)/100.0;
-                c = (c - 512)/100.0;
-
-                population[i].fitness = 1.0 / (1 + a*a + b*b + c*c);
-     //           //printf("%f - %f - %f - %f - %f\n", a, b, c, a*a + b*b + c*c, population[i].fitness);
-                totalFitness += population[i].fitness;
-
-            }
+            totalFitness = fitness(population, PSIZE);
             std::sort(population, population + PSIZE, comparator);
 
             //printf("\n");
-            /*for(int i = 0; i < PSIZE; i++)
-            {
-                //printf("%f;", population[i].fitness);
-            }*/
+            //printPop(population, PSIZE);
             //printf("%f;%x", population[0].fitness, population[0].chromossomes);
 
             Individual parents[2];
             
             nextPopulation[0] = population[0];
-            for(int i = 1; i < PSIZE; i++)
+            for(int j = 0; j < CHROMO_SIZE; j++)
             {
+                population[1].chromossomes[j] = random()%256 - 128;
+            }
+            for(int i = 2; i < PSIZE; i++)
+            {
+                //TODO Function reproduce
                 //Selection
                 for(int j = 0; j < 2; j++)
                 {
@@ -115,56 +136,44 @@ int main(int argc, char *argv[ ])
                 }
             
                 //Crossover
-                unsigned char cutPoint = random() % 28;
-                unsigned mask1 = 0xffffffff << cutPoint; 
-                unsigned mask2 = 0xffffffff >> (32 - cutPoint);
+                unsigned char cutPoint = random() % (CHROMO_SIZE + 1);
                 Individual child;
                 child.fitness = 0;
-                child.chromossomes = (parents[0].chromossomes & mask1) + (parents[1].chromossomes & mask2);
-      
+                for(int i = 0; i < cutPoint; i++)
+                {
+                    child.chromossomes[i] = parents[0].chromossomes[i];
+                }
+
+                for(int i = cutPoint; i < CHROMO_SIZE; i++)
+                {
+                    child.chromossomes[i] = parents[1].chromossomes[i];
+                }
+
                 //Mutation
                 float mutation = ((float) random() / RAND_MAX );
                 if(mutation < MUT_PROB)
                 {
-                    unsigned char mutPoint = random() % 27;
-                    child.chromossomes ^= 1 << mutPoint;
+                    int mutPoint = random() % CHROMO_SIZE;
+                    child.chromossomes[mutPoint] = random()%256 - 128;
                 }
 
 
 
                 nextPopulation[i] = child;
+                //nextPopulation[i] = reproduce(PARAM);
+                
             }
             swap = population;
             population = nextPopulation;
             nextPopulation = swap;
-
-
-
-
         }
 
-        for(int i = 0; i < PSIZE; i++)
-        {
-            a = population[i].chromossomes & mask;
-            b = (population[i].chromossomes & (mask << 9)) >> 9;
-            c = (population[i].chromossomes & (mask << 18)) >> 18;
-     
-            a = (a - 512)/100.0;
-            b = (b - 512)/100.0;
-            c = (c - 512)/100.0;
-
-            population[i].fitness = 1 / (1 + a*a + b*b + c*c);
-
-        }
+        fitness(population, PSIZE);
         std::sort(population, population + PSIZE, comparator);
 
         //printf("\n");
+        //printPop(population, PSIZE);
         
-        /*for(int i = 0; i < PSIZE; i++)
-        {
-            //printf("%f;", population[i].fitness);
-        }*/
-
         //printf("%f;%x", population[0].fitness, population[0].chromossomes);
         //printf("\n");
         
@@ -177,7 +186,5 @@ int main(int argc, char *argv[ ])
     printf("\nAvg T total(us)\t\tAvg T geração(us)\n");
     printf("%f\t\t%f\n", Ttotal/NIT, Ttotal/(NIT*NGEN));
     
- //   //printf("Hello World\n");
-
 return 0;
 }
