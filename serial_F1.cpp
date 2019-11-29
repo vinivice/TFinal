@@ -165,6 +165,9 @@ int main(int argc, char *argv[ ])
         //printf("\n");
         
         end = clock();
+        free(population);
+        free(nextPopulation);
+
         double cpu_time_used = 1000000 * ((double) (end - start)) / CLOCKS_PER_SEC;
         printf("%f\t\t%f\n", cpu_time_used, cpu_time_used/NGEN);
         Ttotal += cpu_time_used;
