@@ -7,7 +7,7 @@
 //#define PSIZE 10
 //#define NGEN 500000
 #define MUT_PROB 0.5
-#define CHROMO_SIZE 44
+#define CHROMO_SIZE 1024
 
 struct Individual 
 {
