@@ -62,7 +62,7 @@ int main(int argc, char *argv[ ])
     double Ttotal = 0;
     if(argc < 5)
     {
-        printf("Uso %s <POP_SIZE> <N_GEN> <N_ITERACOES>\n", argv[0]);
+        printf("Uso %s <POP_SIZE> <N_GEN> <N_ITERACOES> <PRINT>\n", argv[0]);
         return 1;
     }
     else
