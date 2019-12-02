@@ -1,0 +1,2 @@
+g++ serial_F1.cpp -o bin/serial_F1
+g++ serial_STF.cpp -o bin/serial_STF
