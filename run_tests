@@ -1,0 +1,5 @@
+./bin/serial_F1 32 1000 30 0 > res/S_F1_32_1000_30
+./bin/serial_F1 64 1000 30 0 > res/S_F1_64_1000_30
+./bin/serial_F1 256 1000 30 0 > res/S_F1_256_1000_30
+./bin/serial_F1 1024 1000 30 0 > res/S_F1_1024_1000_30
+./bin/serial_F1 5120 1000 30 0 > res/S_F1_5120_1000_30
