@@ -117,6 +117,7 @@ int main(int argc, char *argv[ ])
             nextPopulation[0] = population[0];
             for(int i = 1; i < PSIZE; i++)
             {
+                float localTotalFitness = totalFitness;
                 //TODO Function reproduce
                 //Selection
                 for(int j = 0; j < 2; j++)
@@ -126,18 +127,16 @@ int main(int argc, char *argv[ ])
 
                     for(int k = 0; k < PSIZE; k++)
                     {
+                        if(k == temp)
+                        {
+                        continue;
+                        }
                         score += population[k].fitness;
                         if(p < score)
                         {
-                            if (k != temp)
-                            {
                                 parents[j] = population[k];
+                                localTotalFitness -= population[k].fitness;
                                 temp = k;
-                            }
-                            else
-                            {
-                                j--;
-                            }
                             break;
                         }
                     }

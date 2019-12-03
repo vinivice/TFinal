@@ -1,4 +1,4 @@
-#g++ serial_F1.cpp -o bin/serial_F1
-#g++ serial_STF.cpp -o bin/serial_STF
+g++ serial_F1.cpp -o bin/serial_F1
+g++ serial_STF.cpp -o bin/serial_STF
 nvcc persistent_F1.cu -o bin/persistent_F1
 nvcc persistent_STF.cu -o bin/persistent_STF

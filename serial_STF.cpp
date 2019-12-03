@@ -124,6 +124,7 @@ int main(int argc, char *argv[ ])
             */
             for(int i = 1; i < PSIZE; i++)
             {
+                float localTotalFitness = totalFitness;
                 //TODO Function reproduce
                 //Selection
                 for(int j = 0; j < 2; j++)
@@ -133,18 +134,16 @@ int main(int argc, char *argv[ ])
 
                     for(int k = 0; k < PSIZE; k++)
                     {
+                        if(k == temp)
+                        {
+                        continue;
+                        }
                         score += population[k].fitness;
                         if(p < score)
                         {
-                            if (k != temp)
-                            {
                                 parents[j] = population[k];
+                                localTotalFitness -= population[k].fitness;
                                 temp = k;
-                            }
-                            else
-                            {
-                                j--;
-                            }
                             break;
                         }
                     }
@@ -154,14 +153,14 @@ int main(int argc, char *argv[ ])
                 unsigned char cutPoint = random() % (CHROMO_SIZE + 1);
                 Individual child;
                 child.fitness = 0;
-                for(int i = 0; i < cutPoint; i++)
+                for(int j = 0; j < cutPoint; j++)
                 {
-                    child.chromossomes[i] = parents[0].chromossomes[i];
+                    child.chromossomes[j] = parents[0].chromossomes[j];
                 }
 
-                for(int i = cutPoint; i < CHROMO_SIZE; i++)
+                for(int j = cutPoint; j < CHROMO_SIZE; j++)
                 {
-                    child.chromossomes[i] = parents[1].chromossomes[i];
+                    child.chromossomes[j] = parents[1].chromossomes[j];
                 }
 
                 //Mutation

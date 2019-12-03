@@ -154,14 +154,14 @@ int main(int argc, char *argv[ ])
                 unsigned char cutPoint = random() % (CHROMO_SIZE + 1);
                 Individual child;
                 child.fitness = 0;
-                for(int i = 0; i < cutPoint; i++)
+                for(int j = 0; j < cutPoint; j++)
                 {
-                    child.chromossomes[i] = parents[0].chromossomes[i];
+                    child.chromossomes[j] = parents[0].chromossomes[j];
                 }
 
-                for(int i = cutPoint; i < CHROMO_SIZE; i++)
+                for(int j = cutPoint; j < CHROMO_SIZE; j++)
                 {
-                    child.chromossomes[i] = parents[1].chromossomes[i];
+                    child.chromossomes[j] = parents[1].chromossomes[j];
                 }
 
                 //Mutation
