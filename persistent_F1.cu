@@ -53,23 +53,31 @@ void printPop(Individual *population, int popSize, int print)
 
 
 
-__global__ void persistentThreads(Individual *population, Individual *nextPopulation, int popSize, int NGEN, float *maxFitness, unsigned int seed)
+//__global__ void persistentThreads(Individual *population, Individual *nextPopulation, int popSize, int NGEN, float *maxFitness, unsigned int seed)
+__global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed)
 {
     int id = blockIdx.x*blockDim.x + threadIdx.x;
+    Individual child;
     curandState_t state;
-    //curand_init(seed, id, 0, &state);
-    curand_init(0, id, 0, &state);
+    curand_init(seed, id, 0, &state);
+ //   curand_init(0, id, 0, &state);
     //numbers[id] = curand(&state) % 100;
 
   //  Individual *swap;
 //    population = pop;
   //  nextPopulation = nextPop;
     __shared__ float totalFitness;
-    
+    extern __shared__ Individual population[];
 
-    //Create population
-    population[id].fitness = 0;
-    population[id].chromossomes = curand(&state);
+    printf("%d ========== ", popSize);
+
+    for(int i = id; i < popSize; i+=blockDim.x)
+    {
+        //Create population
+        population[i].fitness = 0;
+        population[i].chromossomes = curand(&state);
+        printf("%x - ", population[i].chromossomes);
+    }
     __syncthreads();
 
     /*if(id == 0)
@@ -89,20 +97,23 @@ __global__ void persistentThreads(Individual *population, Individual *nextPopula
             totalFitness = 0;
         }
         __syncthreads();
-        //Calculate fitness
-        
-        unsigned int mask = 0x3FF;
-        float a = 0, b = 0, c = 0;
-        a = population[id].chromossomes & mask;
-        b = (population[id].chromossomes & (mask << 9)) >> 9;
-        c = (population[id].chromossomes & (mask << 18)) >> 18;
+        for(int iii = id; iii < popSize; iii+=blockDim.x)
+        {
+            //Calculate fitness
+            
+            unsigned int mask = 0x3FF;
+            float a = 0, b = 0, c = 0;
+            a = population[iii].chromossomes & mask;
+            b = (population[iii].chromossomes & (mask << 9)) >> 9;
+            c = (population[iii].chromossomes & (mask << 18)) >> 18;
 
-        a = (a - 512)/100.0;
-        b = (b - 512)/100.0;
-        c = (c - 512)/100.0;
+            a = (a - 512)/100.0;
+            b = (b - 512)/100.0;
+            c = (c - 512)/100.0;
 
-        population[id].fitness = 1.0 / (1 + a*a + b*b + c*c);
-        atomicAdd(&totalFitness, population[id].fitness);
+            population[iii].fitness = 1.0 / (1 + a*a + b*b + c*c);
+            atomicAdd(&totalFitness, population[iii].fitness);
+        }
         __syncthreads();
         if(id == 0)
         {
@@ -147,7 +158,6 @@ __global__ void persistentThreads(Individual *population, Individual *nextPopula
             unsigned char cutPoint = curand(&state) % 28;
             unsigned mask1 = 0xffffffff << cutPoint; 
             unsigned mask2 = 0xffffffff >> (32 - cutPoint);
-            Individual child;
             child.fitness = 0;
             child.chromossomes = (parents[0].chromossomes & mask1) + (parents[1].chromossomes & mask2);
             //child.chromossomes = 0;
@@ -159,9 +169,6 @@ __global__ void persistentThreads(Individual *population, Individual *nextPopula
                 unsigned char mutPoint = curand(&state) % 27;
                 child.chromossomes ^= 1 << mutPoint;
             }
-
-            nextPopulation[id] = child;
-
       }
         __syncthreads();
         
@@ -170,7 +177,8 @@ __global__ void persistentThreads(Individual *population, Individual *nextPopula
          //   printf("PA: %x\n", population[1].chromossomes);
            // printf("NPA: %x\n", nextPopulation[1].chromossomes);
 
-            nextPopulation[0] = population[0];
+           // nextPopulation[0] = population[0];
+            child = population[0];
             //(*population) = NULL;
 
  //           printf("PD: %x\n", population[1].chromossomes);
@@ -179,32 +187,37 @@ __global__ void persistentThreads(Individual *population, Individual *nextPopula
 
         for(int i = id; i < popSize; i+=blockDim.x)
         {
-            population[i] = nextPopulation[i];
+            //population[i] = nextPopulation[i];
+            population[i] = child;
         }
         __syncthreads();
         
     }
+/*
+    for(int iii = id; iii < popSize; iii+=blockDim.x)
+    {
+        //Calculate fitness
+        
+        unsigned int mask = 0x3FF;
+        float a = 0, b = 0, c = 0;
+        a = population[iii].chromossomes & mask;
+        b = (population[iii].chromossomes & (mask << 9)) >> 9;
+        c = (population[iii].chromossomes & (mask << 18)) >> 18;
 
-    //Calculate fitness
- 
-    unsigned int mask = 0x3FF;
-    float a = 0, b = 0, c = 0;
-    a = population[id].chromossomes & mask;
-    b = (population[id].chromossomes & (mask << 9)) >> 9;
-    c = (population[id].chromossomes & (mask << 18)) >> 18;
+        a = (a - 512)/100.0;
+        b = (b - 512)/100.0;
+        c = (c - 512)/100.0;
 
-    a = (a - 512)/100.0;
-    b = (b - 512)/100.0;
-    c = (c - 512)/100.0;
-
-    population[id].fitness = 1.0 / (1 + a*a + b*b + c*c);
-    atomicAdd(&totalFitness, population[id].fitness);
+        population[iii].fitness = 1.0 / (1 + a*a + b*b + c*c);
+        atomicAdd(&totalFitness, population[iii].fitness);
+    }
     __syncthreads();
     if(id == 0)
     {
         thrust::sort(population, population + popSize, comparator);
+//           (*nextPopulation)[0] = (*population)[0];
     }
-
+*/
 }
 
 /*
@@ -262,6 +275,7 @@ int main(int argc, char *argv[ ])
 
     for(int it = 0; it < NIT; it++)
     {   
+        /*
         //Init variables
         Individual *population, *nextPopulation;
         cudaMalloc((void**) &population, PSIZE * sizeof(Individual));
@@ -271,7 +285,7 @@ int main(int argc, char *argv[ ])
         cpu_population = (Individual *) malloc(PSIZE * sizeof(Individual));
         cpu_nextPopulation = (Individual *) malloc(PSIZE * sizeof(Individual));
 
-
+*/
 
         float *maxFitness, *cpu_maxFitness;
         cudaMalloc((void**) &maxFitness, NGEN * sizeof(float));
@@ -284,14 +298,15 @@ int main(int argc, char *argv[ ])
         clock_t start, end;
         start = clock();
 
-        persistentThreads<<<1, min(PSIZE, 1024)>>>(population, nextPopulation, PSIZE, NGEN, maxFitness, time(NULL));
+        //persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL));
+        persistentThreads<<<1, 896, PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL));
 
-        cudaMemcpy(cpu_population, population, PSIZE * sizeof(Individual), cudaMemcpyDeviceToHost);
-        cudaMemcpy(cpu_nextPopulation, nextPopulation, PSIZE * sizeof(Individual), cudaMemcpyDeviceToHost);
+        //cudaMemcpy(cpu_population, population, PSIZE * sizeof(Individual), cudaMemcpyDeviceToHost);
+        //cudaMemcpy(cpu_nextPopulation, nextPopulation, PSIZE * sizeof(Individual), cudaMemcpyDeviceToHost);
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
 
         end = clock();
-
+/*
         for(int i = 0; i < PSIZE; i++)
         {
             printf("%f ; %x\n", cpu_population[i].fitness, cpu_population[i].chromossomes);
@@ -301,7 +316,7 @@ int main(int argc, char *argv[ ])
         {
             printf("%f ; %x\n", cpu_nextPopulation[i].fitness, cpu_nextPopulation[i].chromossomes);
         }
-        
+  */      
         if(PRINT != 0)
         {
             printf("Gen\tFitness\n");
@@ -317,10 +332,10 @@ int main(int argc, char *argv[ ])
         Ttotal += cpu_time_used;
 
 
-        free(cpu_population);
+        //free(cpu_population);
 
-        cudaFree(population);
-        cudaFree(nextPopulation);
+        //cudaFree(population);
+        //cudaFree(nextPopulation);
     }
 
     printf("\nAvg T total(us)\t\tAvg T geração(us)\n");
