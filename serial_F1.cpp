@@ -76,11 +76,12 @@ int main(int argc, char *argv[ ])
 
     for(int it = 0; it < NIT; it++)
     {
+        clock_t start, end;
+        start = clock();
         //Init variables
         Individual *population, *nextPopulation, *swap;
         population = (Individual *) malloc(PSIZE * sizeof(Individual));
         nextPopulation = (Individual *) malloc(PSIZE * sizeof(Individual));
-        clock_t start, end;
 
         float *maxFitness;
         maxFitness = (float *) malloc(NGEN * sizeof(float));
@@ -99,7 +100,6 @@ int main(int argc, char *argv[ ])
     
         //printPop(population, PSIZE, PRINT);
    
-        start = clock();
         for(int i = 0; i < NGEN; i++)
         {
             //Calculate fitness
