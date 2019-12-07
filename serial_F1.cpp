@@ -169,8 +169,8 @@ int main(int argc, char *argv[ ])
             nextPopulation = swap;
         }
 
-        fitness(population, PSIZE);
-        std::sort(population, population + PSIZE, comparator);
+ //       fitness(population, PSIZE);
+  //      std::sort(population, population + PSIZE, comparator);
 
         //printf("\n");
         //printPop(population, PSIZE, PRINT);

@@ -182,8 +182,8 @@ int main(int argc, char *argv[ ])
             nextPopulation = swap;
         }
 
-        fitness(population, PSIZE);
-        std::sort(population, population + PSIZE, comparator);
+ //       fitness(population, PSIZE);
+  //      std::sort(population, population + PSIZE, comparator);
 
         //printf("\n");
         //printPop(population, PSIZE);
@@ -203,6 +203,7 @@ int main(int argc, char *argv[ ])
                 printf("%d\t%f\n", i+1, maxFitness[i]);
             }
         }
+        free(maxFitness);
 
         printf("\nT total(us)\t\tT geração(us)\n");
         double cpu_time_used = 1000000 * ((double) (end - start)) / CLOCKS_PER_SEC;

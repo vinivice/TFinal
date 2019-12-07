@@ -328,6 +328,8 @@ int main(int argc, char *argv[ ])
             printf("%f ; %x\n", cpu_nextPopulation[i].fitness, cpu_nextPopulation[i].chromossomes);
         }
   */      
+        end = clock();
+        cudaFree(maxFitness);
         if(PRINT != 0)
         {
             printf("Gen\tFitness\n");
@@ -336,7 +338,7 @@ int main(int argc, char *argv[ ])
                 printf("%d\t%f\n", i, cpu_maxFitness[i]);
             }
         }
-        end = clock();
+        free(cpu_maxFitness);
 
         printf("\nT total(us)\t\tT geração(us)\n");
         double cpu_time_used = 1000000 * ((double) (end - start)) / CLOCKS_PER_SEC;
