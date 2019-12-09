@@ -1,22 +1,83 @@
 # Testes aumentando total de indivíduos
-./bin/serial_F1 32 1000 30 0 > res/S_F1_32_1000_30
-./bin/serial_F1 64 1000 30 0 > res/S_F1_64_1000_30
-./bin/serial_F1 256 1000 30 0 > res/S_F1_256_1000_30
-./bin/serial_F1 896 1000 30 0 > res/S_F1_896_1000_30
+./bin/serial_F1 32 2000 30 0 > res/S_F1_32_2000_30
+./bin/serial_F1 64 2000 30 0 > res/S_F1_64_2000_30
+./bin/serial_F1 256 2000 30 0 > res/S_F1_256_2000_30
+./bin/serial_F1 896 2000 30 0 > res/S_F1_896_2000_30
 
 
-./bin/persistent_F1 896 1000 30 0 > res/P_F1_896_1000_30
+./bin/persistent_F1 32 2000 30 0 > res/P_F1_32_2000_30
+./bin/persistent_F1 64 2000 30 0 > res/P_F1_64_2000_30
+./bin/persistent_F1 256 2000 30 0 > res/P_F1_256_2000_30
+./bin/persistent_F1 896 2000 30 0 > res/P_F1_896_2000_30
 
 
-./bin/serial_STF 24 1000 30 0 > res/S_STF_24_1000_30
-./bin/serial_STF 47 1000 30 0 > res/S_STF_47_1000_30
-./bin/serial_STF 94 1000 30 0 > res/S_STF_94_1000_30
-./bin/serial_STF 188 1000 30 0 > res/S_STF_188_1000_30
+./bin/fitness_paralela_F1 32 2000 30 0 > res/FP_F1_32_2000_30
+./bin/fitness_paralela_F1 64 2000 30 0 > res/FP_F1_64_2000_30
+./bin/fitness_paralela_F1 256 2000 30 0 > res/FP_F1_256_2000_30
+./bin/fitness_paralela_F1 896 2000 30 0 > res/FP_F1_896_2000_30
+
+#===================================================================
+
+./bin/serial_STF 24 2000 30 0 > res/S_STF_24_2000_30
+./bin/serial_STF 47 2000 30 0 > res/S_STF_47_2000_30
+./bin/serial_STF 94 2000 30 0 > res/S_STF_94_2000_30
+./bin/serial_STF 188 2000 30 0 > res/S_STF_188_2000_30
 
 
-./bin/persistent_STF 188 1000 30 0 > res/P_STF_188_1000_30
+./bin/persistent_STF 24 2000 30 0 > res/P_STF_24_2000_30
+./bin/persistent_STF 47 2000 30 0 > res/P_STF_47_2000_30
+./bin/persistent_STF 94 2000 30 0 > res/P_STF_94_2000_30
+./bin/persistent_STF 188 2000 30 0 > res/P_STF_188_2000_30
+
+
+#./bin/fitness_paralela_STF 24 2000 30 0 > res/P_STF_24_2000_30
+#./bin/fitness_paralela_STF 47 2000 30 0 > res/P_STF_47_2000_30
+#./bin/fitness_paralela_STF 94 2000 30 0 > res/P_STF_94_2000_30
+#./bin/fitness_paralela_STF 188 2000 30 0 > res/P_STF_188_2000_30
 
 # Teste aumentando total de iterações
+./bin/serial_F1 896 2 30 0 > res/S_F1_896_2_30
+./bin/serial_F1 896 20 30 0 > res/S_F1_896_20_30
+./bin/serial_F1 896 200 30 0 > res/S_F1_896_200_30
+./bin/serial_F1 896 20000 30 0 > res/S_F1_896_20000_30
 
+
+./bin/persistent_F1 896 2 30 0 > res/P_F1_896_2_30
+./bin/persistent_F1 896 20 30 0 > res/P_F1_896_20_30
+./bin/persistent_F1 896 200 30 0 > res/P_F1_896_200_30
+./bin/persistent_F1 896 20000 30 0 > res/P_F1_896_20000_30
+
+
+./bin/fitness_paralela_F1 896 2 30 0 > res/FP_F1_896_2_30
+./bin/fitness_paralela_F1 896 20 30 0 > res/FP_F1_896_20_30
+./bin/fitness_paralela_F1 896 200 30 0 > res/FP_F1_896_200_30
+./bin/fitness_paralela_F1 896 20000 30 0 > res/FP_F1_896_20000_30
+
+#===================================================================
+
+./bin/serial_STF 188 2 30 0 > res/S_STF_188_2_30
+./bin/serial_STF 188 20 30 0 > res/S_STF_188_20_30
+./bin/serial_STF 188 200 30 0 > res/S_STF_188_200_30
+./bin/serial_STF 188 20000 30 0 > res/S_STF_188_20000_30
+
+./bin/persistent_STF 188 2 30 0 > res/P_STF_188_2_30
+./bin/persistent_STF 188 20 30 0 > res/P_STF_188_20_30
+./bin/persistent_STF 188 200 30 0 > res/P_STF_188_200_30
+./bin/persistent_STF 188 20000 30 0 > res/P_STF_188_20000_30
+
+
+#./bin/fitness_paralela_STF 188 2 30 0 > res/P_STF_188_2_30
+#./bin/fitness_paralela_STF 188 20 30 0 > res/P_STF_188_20_30
+#./bin/fitness_paralela_STF 188 200 30 0 > res/P_STF_188_200_30
+#./bin/fitness_paralela_STF 188 20000 30 0 > res/P_STF_188_20000_30
 
 # Teste de perfil de aumento de fitness
+./bin/serial_F1 896 200 1 1 > res/S_F1_896_200_1
+./bin/persistent_F1 896 200 1 1 > res/P_F1_896_200_1
+./bin/fitness_paralela_F1 896 200 1 1 > res/FP_F1_896_200_1
+
+#===================================================================
+
+./bin/serial_STF 188 200 1 1 > res/S_STF_188_200_1
+./bin/persistent_STF 188 200 1 1 > res/P_STF_188_200_1
+#./bin/fitness_paralela_STF 188 200 1 1 > res/P_STF_188_200_1
