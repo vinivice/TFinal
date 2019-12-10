@@ -1,3 +1,6 @@
+date > res/log
+
+echo Testes aumentando total de indivíduos >> res/log
 # Testes aumentando total de indivíduos
 ./bin/serial_F1 32 2000 30 0 > res/S_F1_32_2000_30
 ./bin/serial_F1 64 2000 30 0 > res/S_F1_64_2000_30
@@ -30,11 +33,12 @@
 ./bin/persistent_STF 188 2000 30 0 > res/P_STF_188_2000_30
 
 
-#./bin/fitness_paralela_STF 24 2000 30 0 > res/P_STF_24_2000_30
-#./bin/fitness_paralela_STF 47 2000 30 0 > res/P_STF_47_2000_30
-#./bin/fitness_paralela_STF 94 2000 30 0 > res/P_STF_94_2000_30
-#./bin/fitness_paralela_STF 188 2000 30 0 > res/P_STF_188_2000_30
+./bin/fitness_paralela_STF 24 2000 30 0 > res/FP_STF_24_2000_30
+./bin/fitness_paralela_STF 47 2000 30 0 > res/FP_STF_47_2000_30
+./bin/fitness_paralela_STF 94 2000 30 0 > res/FP_STF_94_2000_30
+./bin/fitness_paralela_STF 188 2000 30 0 > res/FP_STF_188_2000_30
 
+echo Teste aumentando total de iterações >> res/log
 # Teste aumentando total de iterações
 ./bin/serial_F1 896 2 30 0 > res/S_F1_896_2_30
 ./bin/serial_F1 896 20 30 0 > res/S_F1_896_20_30
@@ -66,11 +70,12 @@
 ./bin/persistent_STF 188 20000 30 0 > res/P_STF_188_20000_30
 
 
-#./bin/fitness_paralela_STF 188 2 30 0 > res/P_STF_188_2_30
-#./bin/fitness_paralela_STF 188 20 30 0 > res/P_STF_188_20_30
-#./bin/fitness_paralela_STF 188 200 30 0 > res/P_STF_188_200_30
-#./bin/fitness_paralela_STF 188 20000 30 0 > res/P_STF_188_20000_30
+./bin/fitness_paralela_STF 188 2 30 0 > res/FP_STF_188_2_30
+./bin/fitness_paralela_STF 188 20 30 0 > res/FP_STF_188_20_30
+./bin/fitness_paralela_STF 188 200 30 0 > res/FP_STF_188_200_30
+./bin/fitness_paralela_STF 188 20000 30 0 > res/FP_STF_188_20000_30
 
+echo Teste de perfil de aumento de fitness >> res/log
 # Teste de perfil de aumento de fitness
 ./bin/serial_F1 896 200 1 1 > res/S_F1_896_200_1
 ./bin/persistent_F1 896 200 1 1 > res/P_F1_896_200_1
@@ -80,4 +85,6 @@
 
 ./bin/serial_STF 188 200 1 1 > res/S_STF_188_200_1
 ./bin/persistent_STF 188 200 1 1 > res/P_STF_188_200_1
-#./bin/fitness_paralela_STF 188 200 1 1 > res/P_STF_188_200_1
+./bin/fitness_paralela_STF 188 200 1 1 > res/FP_STF_188_200_1
+
+date >> res/log
