@@ -51,7 +51,7 @@ void printPop(Individual *population, int popSize, int print)
 
 __global__ void createPopulation(Individual *population, unsigned int seed, curandState_t *states)
 {
-    int id = blockIdx.x;
+    int id = blockIdx.x*blockDim.x + threadIdx.x;
     curand_init(seed, id, 0, &states[id]);
 
     population[id].fitness = 0;
@@ -83,7 +83,7 @@ __global__ void fitness(Individual *population, float *totalFitness)
 
 __global__ void reproduce(Individual *population, Individual *nextPopulation, int PSIZE, float *totalFitness, curandState_t *states)
 { 
-    int id = blockIdx.x;
+    int id = blockIdx.x*blockDim.x + threadIdx.x;
     Individual parents[2];
     int temp = -1;
     float localTotalFitness = *totalFitness;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[ ])
         cudaMalloc((void**) &totalFitness, sizeof(float));
 
         //Create population
-        createPopulation<<<PSIZE, 3>>>(population, time(NULL), states);
+        createPopulation<<<ceil(PSIZE/1024.0), min(PSIZE, 1024)>>>(population, time(NULL), states);
 //cudaDeviceSynchronize();
 
 /*        for(int i = 0; i < PSIZE; i++)
@@ -210,7 +210,7 @@ int main(int argc, char *argv[ ])
            // float tf = 0;
            // thrust::reduce(dev_ptr_population, dev_ptr_population + PSIZE);
 
-            reproduce<<<PSIZE, 3>>>(population, nextPopulation, PSIZE, totalFitness, states);
+            reproduce<<<ceil(PSIZE/1024.0), min(PSIZE, 1024)>>>(population, nextPopulation, PSIZE, totalFitness, states);
                 
             swap = population;
             population = nextPopulation;

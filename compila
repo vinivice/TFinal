@@ -13,7 +13,7 @@ echo "persistent_F1 pronto"
 #nvcc persistent_STF.cu -o bin/persistent_STF
 echo "persistent_STF pronto"
 
-nvcc --debug fitness_paralela_F1.cu -o bin/fitness_paralela_F1
+nvcc fitness_paralela_F1.cu -o bin/fitness_paralela_F1
 echo "FP F1 pronto"
 
 #nvcc fitness_paralela_STF.cu -o bin/fitness_paralela_STF
