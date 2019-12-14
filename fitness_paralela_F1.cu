@@ -65,7 +65,7 @@ __global__ void fitness(Individual *population, float *totalFitness)
     unsigned int mask = 0x3FF;
     __shared__ float a[3];
 
-    a[threadIdx.x] = (population[id].chromossomes & (mask << (9 * threadIdx.x))) >> (9 * threadIdx.x);
+    a[threadIdx.x] = (population[id].chromossomes & (mask << (10 * threadIdx.x))) >> (10 * threadIdx.x);
 
     a[threadIdx.x] = (a[threadIdx.x] - 512)/100.0;
 
@@ -111,7 +111,7 @@ __global__ void reproduce(Individual *population, Individual *nextPopulation, in
     }
 
     //Crossover
-    unsigned char cutPoint = curand(&states[id]) % 28;
+    unsigned char cutPoint = curand(&states[id]) % 31;
     unsigned mask1 = 0xffffffff << cutPoint; 
     unsigned mask2 = 0xffffffff >> (32 - cutPoint);
     Individual child;
@@ -122,7 +122,7 @@ __global__ void reproduce(Individual *population, Individual *nextPopulation, in
     float mutation = curand_uniform(&states[id]);
     if(mutation < MUT_PROB)
     {
-        unsigned char mutPoint = curand(&states[id]) % 27;
+        unsigned char mutPoint = curand(&states[id]) % 30;
         child.chromossomes ^= 1 << mutPoint;
     }
 

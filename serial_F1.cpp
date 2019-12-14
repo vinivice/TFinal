@@ -38,8 +38,8 @@ float fitness(Individual *population, int popSize)
     for(int i = 0; i < popSize; i++)
     {
         a = population[i].chromossomes & mask;
-        b = (population[i].chromossomes & (mask << 9)) >> 9;
-        c = (population[i].chromossomes & (mask << 18)) >> 18;
+        b = (population[i].chromossomes & (mask << 10)) >> 10;
+        c = (population[i].chromossomes & (mask << 20)) >> 20;
  
         a = (a - 512)/100.0;
         b = (b - 512)/100.0;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[ ])
                 }
             
                 //Crossover
-                unsigned char cutPoint = random() % 28;
+                unsigned char cutPoint = random() % 31;
                 unsigned mask1 = 0xffffffff << cutPoint; 
                 unsigned mask2 = 0xffffffff >> (32 - cutPoint);
                 Individual child;
@@ -154,7 +154,7 @@ int main(int argc, char *argv[ ])
                 float mutation = ((float) random() / RAND_MAX );
                 if(mutation < MUT_PROB)
                 {
-                    unsigned char mutPoint = random() % 27;
+                    unsigned char mutPoint = random() % 30;
                     child.chromossomes ^= 1 << mutPoint;
                 }
 

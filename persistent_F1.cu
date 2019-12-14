@@ -104,8 +104,8 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             unsigned int mask = 0x3FF;
             float a = 0, b = 0, c = 0;
             a = population[i].chromossomes & mask;
-            b = (population[i].chromossomes & (mask << 9)) >> 9;
-            c = (population[i].chromossomes & (mask << 18)) >> 18;
+            b = (population[i].chromossomes & (mask << 10)) >> 10;
+            c = (population[i].chromossomes & (mask << 20)) >> 20;
 
             a = (a - 512)/100.0;
             b = (b - 512)/100.0;
@@ -155,7 +155,7 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             }
 
             //Crossover
-            unsigned char cutPoint = curand(&state) % 28;
+            unsigned char cutPoint = curand(&state) % 31;
             unsigned int mask1 = 0xffffffff << cutPoint; 
             unsigned int mask2 = 0xffffffff >> (32 - cutPoint);
             child.fitness = 0;
@@ -166,7 +166,7 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             float mutation = curand_uniform(&state);
             if(mutation < MUT_PROB)
             {
-                unsigned char mutPoint = curand(&state) % 27;
+                unsigned char mutPoint = curand(&state) % 30;
                 child.chromossomes ^= 1 << mutPoint;
             }
         }
