@@ -98,7 +98,6 @@ int main(int argc, char *argv[ ])
             population[i].chromossomes = random();
         }
     
-        //printPop(population, PSIZE, PRINT);
    
         for(int i = 0; i < NGEN; i++)
         {
@@ -107,10 +106,6 @@ int main(int argc, char *argv[ ])
             std::sort(population, population + PSIZE, comparator);
             maxFitness[i] = population[0].fitness;
 
-            //printf("\n");
-            //printPop(population, PSIZE, PRINT);
-            //printf("%f;%x", population[0].fitness, population[0].chromossomes);
-
             Individual parents[2];
             int temp = -1;
             
@@ -118,7 +113,6 @@ int main(int argc, char *argv[ ])
             for(int i = 1; i < PSIZE; i++)
             {
                 float localTotalFitness = totalFitness;
-                //TODO Function reproduce
                 //Selection
                 for(int j = 0; j < 2; j++)
                 {
@@ -161,22 +155,11 @@ int main(int argc, char *argv[ ])
 
 
                 nextPopulation[i] = child;
-                //nextPopulation[i] = reproduce(PARAM);
-                
             }
             swap = population;
             population = nextPopulation;
             nextPopulation = swap;
         }
-
- //       fitness(population, PSIZE);
-  //      std::sort(population, population + PSIZE, comparator);
-
-        //printf("\n");
-        //printPop(population, PSIZE, PRINT);
-        
-        //printf("%f;%x", population[0].fitness, population[0].chromossomes);
-        //printf("\n");
         
         end = clock();
         free(population);

@@ -35,60 +35,24 @@ void printPop(Individual *population, int popSize, int print)
     }
 }
 
-/*__device__ float fitness(Individual *population, int id)
-{
-    unsigned int mask = 0x3FF;
-    float a = 0, b = 0, c = 0;
-    a = population[id].chromossomes & mask;
-    b = (population[id].chromossomes & (mask << 9)) >> 9;
-    c = (population[id].chromossomes & (mask << 18)) >> 18;
-
-    a = (a - 512)/100.0;
-    b = (b - 512)/100.0;
-    c = (c - 512)/100.0;
-
-    population[id].fitness = 1.0 / (1 + a*a + b*b + c*c);
-}*/
-
-
-
-
-//__global__ void persistentThreads(Individual *population, Individual *nextPopulation, int popSize, int NGEN, float *maxFitness, unsigned int seed)
 __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed)
 {
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     Individual child;
     curandState_t state;
     curand_init(seed, id, 0, &state);
- //   curand_init(0, id, 0, &state);
-    //numbers[id] = curand(&state) % 100;
 
-  //  Individual *swap;
-//    population = pop;
-  //  nextPopulation = nextPop;
     __shared__ float totalFitness;
     extern __shared__ Individual population[];
-
-    //printf("%d ========== ", popSize);
 
     for(int i = id; i < popSize; i+=blockDim.x)
     {
         //Create population
         population[i].fitness = 0;
         population[i].chromossomes = curand(&state);
-        //printf("%x - ", population[i].chromossomes);
     }
     __syncthreads();
 
-    /*if(id == 0)
-    {  
-        printf("LALAAL\n");
-        for(int i = 0; i < popSize; i++)
-        {
-            printf("%f ; %x\n", population[i].fitness, population[i].chromossomes);
-        }
-        printf("LALAAL\n");
-    }*/
 
     for(int g = 0; g < NGEN; g++)
     {
@@ -119,7 +83,6 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         {
             thrust::sort(population, population + popSize, comparator);
             maxFitness[g] = population[0].fitness;
- //           (*nextPopulation)[0] = (*population)[0];
         }
         __syncthreads();
         
@@ -160,7 +123,6 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             unsigned int mask2 = 0xffffffff >> (32 - cutPoint);
             child.fitness = 0;
             child.chromossomes = (parents[0].chromossomes & mask1) + (parents[1].chromossomes & mask2);
-            //child.chromossomes = 0;
  
             //Mutation
             float mutation = curand_uniform(&state);
@@ -174,62 +136,17 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         
         if(id == 0)
         {
-         //   printf("PA: %x\n", population[1].chromossomes);
-           // printf("NPA: %x\n", nextPopulation[1].chromossomes);
-
-           // nextPopulation[0] = population[0];
             child = population[0];
-            //(*population) = NULL;
-
- //           printf("PD: %x\n", population[1].chromossomes);
-   //         printf("NPD: %x\n", nextPopulation[1].chromossomes);
         }
 
         for(int i = id; i < popSize; i+=blockDim.x)
         {
-            //population[i] = nextPopulation[i];
             population[i] = child;
         }
         __syncthreads();
         
     }
 }
-
-/*
-
-int main()
-{
-  unsigned char *cpu_nums;
-  cpu_nums = (unsigned char *) malloc(TESTE * sizeof(unsigned char));
-
-  unsigned char* gpu_nums;
-  cudaMalloc((void**) &gpu_nums, TESTE * sizeof(unsigned char));
-
-//  curandState *states;
- // cudaMalloc((void**) &states, TESTE * sizeof(curandState_t));
-
-  for(int i = 0; i < TESTE; i++)
-  {
-    cpu_nums[i] = 0;
-    printf("%d - ", cpu_nums[i]);
-  }
-  persistentThreads<<<1, TESTE>>>(NULL, 0, 0, time(NULL), gpu_nums);
-
-  cudaError_t err;
-  err = cudaMemcpy(cpu_nums, gpu_nums, TESTE * sizeof(unsigned char), cudaMemcpyDeviceToHost);
-
-  printf("\n%u\n", err);
-  for(int i = 0; i < TESTE; i++)
-  {
-    printf("%u - ", cpu_nums[i]);
-  }
-
-
-return 0;
-}
-
-*/
-
 
 int main(int argc, char *argv[ ]) 
 {
@@ -252,47 +169,15 @@ int main(int argc, char *argv[ ])
     {   
         clock_t start, end;
         start = clock();
-        /*
-        //Init variables
-        Individual *population, *nextPopulation;
-        cudaMalloc((void**) &population, PSIZE * sizeof(Individual));
-        cudaMalloc((void**) &nextPopulation, PSIZE * sizeof(Individual));
-
-        Individual *cpu_population, *cpu_nextPopulation;
-        cpu_population = (Individual *) malloc(PSIZE * sizeof(Individual));
-        cpu_nextPopulation = (Individual *) malloc(PSIZE * sizeof(Individual));
-
-*/
 
         float *maxFitness, *cpu_maxFitness;
         cudaMalloc((void**) &maxFitness, NGEN * sizeof(float));
         cpu_maxFitness = (float *) malloc(NGEN * sizeof(float));
 
 
-
-
-
-
-        //persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL));
         persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL));
 
-        //cudaMemcpy(cpu_population, population, PSIZE * sizeof(Individual), cudaMemcpyDeviceToHost);
-        //cudaMemcpy(cpu_nextPopulation, nextPopulation, PSIZE * sizeof(Individual), cudaMemcpyDeviceToHost);
-        //printf("%s\n", cudaGetErrorString(cudaPeekAtLastError()));
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
-        //printf("%s\n", cudaGetErrorString(cudaPeekAtLastError()));
-
-/*
-        for(int i = 0; i < PSIZE; i++)
-        {
-            printf("%f ; %x\n", cpu_population[i].fitness, cpu_population[i].chromossomes);
-        }
-
-        for(int i = 0; i < PSIZE; i++)
-        {
-            printf("%f ; %x\n", cpu_nextPopulation[i].fitness, cpu_nextPopulation[i].chromossomes);
-        }
-  */      
 
         end = clock();
         cudaFree(maxFitness);
@@ -312,11 +197,6 @@ int main(int argc, char *argv[ ])
         printf("%f\t\t%f\n\n", cpu_time_used, cpu_time_used/NGEN);
         Ttotal += cpu_time_used;
 
-
-        //free(cpu_population);
-
-        //cudaFree(population);
-        //cudaFree(nextPopulation);
     }
 
     printf("\nAvg T total(us)\t\tAvg T geração(us)\n");

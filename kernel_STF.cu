@@ -52,7 +52,6 @@ void printPop(Individual *population, int popSize, int print)
 
 __global__ void createPopulation(Individual *population, unsigned int seed, curandState_t *states)
 {
-    //printf("CRE\n");
     int id = blockIdx.x;
     int rand_id = blockIdx.x*blockDim.x + threadIdx.x;
     int c_id = threadIdx.x;
@@ -60,24 +59,16 @@ __global__ void createPopulation(Individual *population, unsigned int seed, cura
     curandState_t state;
     curand_init(seed, rand_id, 0, &state);
    
- //   __syncthreads();
    
     
     population[id].chromossomes[c_id] = curand(&state)%256 - 128;
- //   population[id].chromossomes[c_id] = 65;
 
     population[id].fitness = 0;
- //   printf("%d - %f\n", id, population[id].fitness);
- /*   if(id == 0)
-    {
-        printf("%d - %f - %d\n", id, population[id].fitness, population[id].chromossomes[c_id]);
-    }*/
     curand_init(seed, id, 0, &states[id]);
 }
 
 __global__ void fitness(Individual *population, float *totalFitness)
 {
-    //printf("FITNESS\n");
     int id = blockIdx.x;
     int c_id = threadIdx.x;
     __shared__ float a[CHROMO_SIZE];
@@ -93,7 +84,6 @@ __global__ void fitness(Individual *population, float *totalFitness)
         float f = 1.0 / (40.0*CHROMO_SIZE + subTotal);
         population[id].fitness = f;
         atomicAdd(totalFitness, f);
-        //printf("%d - %f - %f - %f - %f - %f\n", id, population[id].fitness, subTotal, *totalFitness, x , a[0]);
     }
 }
 
@@ -182,9 +172,6 @@ int main(int argc, char *argv[ ])
 
     for(int it = 0; it < NIT; it++)
     {
- //       thrust::device_vector<Individual> teste(PSIZE);
-   //     printf("%f\n", teste.begin().fitness);
-     //   thrust::sort(teste.begin(), teste.end(), comparator);
         clock_t start, end;
         start = clock();
         //Init variables
@@ -206,35 +193,18 @@ int main(int argc, char *argv[ ])
         cudaMalloc((void**) &totalFitness, sizeof(float));
 
         //Create population
-        //printf("CRE POP\n");
         createPopulation<<<PSIZE, CHROMO_SIZE>>>(population, time(NULL), states);
-//cudaDeviceSynchronize();
-
-/*        for(int i = 0; i < PSIZE; i++)
-        {
-            population[i].fitness = 0;
-            population[i].chromossomes = random();
-        }*/
-    
-        //printPop(population, PSIZE, PRINT);  
 
         float const zero = 0.0f;
         for(int i = 0; i < NGEN; i++)
         {
             cudaMemcpy(totalFitness, &zero, sizeof(float), cudaMemcpyHostToDevice);
             //Calculate fitness
-            //printf("id - fit - sub - total - x - a\n");
             fitness<<<PSIZE, CHROMO_SIZE>>>(population, totalFitness);
-            //printf("\n");
 
             thrust::device_ptr<Individual> dev_ptr_population(population);
-            //printf("%f - %d\n", dev_ptr_population[0].fitness, dev_ptr_population[0].chromossomes);
             thrust::sort(dev_ptr_population, dev_ptr_population + PSIZE);
             cudaMemcpy(&maxFitness[i], &(population[0].fitness), sizeof(float), cudaMemcpyDeviceToHost);
-            //printf("\n");
-
-           // float tf = 0;
-           // thrust::reduce(dev_ptr_population, dev_ptr_population + PSIZE);
 
             reproduce<<<ceil(PSIZE/1024.0), min(PSIZE, 1024)>>>(population, nextPopulation, PSIZE, totalFitness, states);
                 
@@ -242,16 +212,7 @@ int main(int argc, char *argv[ ])
             population = nextPopulation;
             nextPopulation = swap;
         }
-/*
-        fitness(population, PSIZE);
-        std::sort(population, population + PSIZE, comparator);
-
-        //printf("\n");
-        //printPop(population, PSIZE, PRINT);
-        
-        //printf("%f;%x", population[0].fitness, population[0].chromossomes);
-        //printf("\n");
-     */   
+   
         end = clock();
         cudaFree(population);
         cudaFree(nextPopulation);

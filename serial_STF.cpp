@@ -23,18 +23,6 @@ bool comparator (Individual i, Individual j)
 void printPop(Individual *population, int popSize)
 {
     printf("%f = \n", population[0].fitness);
-    /*
-    for(int i = 0; i < popSize; i++)
-    {
-        printf("%f = \n", population[i].fitness);
-        for(int j = 0; j < CHROMO_SIZE; j++)
-        {
-                printf("%.2f;", (population[i].chromossomes[j] / 128.0) * 5.0);
-        }
-        printf("\n");
-    }
-    printf("=======================\n");
-    */
 }
 
 float fitness(Individual *population, int popSize)
@@ -99,7 +87,6 @@ int main(int argc, char *argv[ ])
                 population[i].chromossomes[j] = random()%256 - 128;
             }
         }
- //       printPop(population, PSIZE);
 
         for(int i = 0; i < NGEN; i++)
         {
@@ -108,24 +95,14 @@ int main(int argc, char *argv[ ])
             std::sort(population, population + PSIZE, comparator);
             maxFitness[i] = population[0].fitness;
 
-            //printf("\n");
-            //printPop(population, PSIZE);
-            //printf("%f;%x", population[0].fitness, population[0].chromossomes);
-
             Individual parents[2];
             int temp = -1;
             
             nextPopulation[0] = population[0];
-            /*
-            for(int j = 0; j < CHROMO_SIZE; j++)
-            {
-                population[1].chromossomes[j] = random()%256 - 128;
-            }
-            */
+            
             for(int i = 1; i < PSIZE; i++)
             {
                 float localTotalFitness = totalFitness;
-                //TODO Function reproduce
                 //Selection
                 for(int j = 0; j < 2; j++)
                 {
@@ -174,22 +151,12 @@ int main(int argc, char *argv[ ])
 
 
                 nextPopulation[i] = child;
-                //nextPopulation[i] = reproduce(PARAM);
-                
             }
             swap = population;
             population = nextPopulation;
             nextPopulation = swap;
         }
 
- //       fitness(population, PSIZE);
-  //      std::sort(population, population + PSIZE, comparator);
-
-        //printf("\n");
-        //printPop(population, PSIZE);
-        
-        //printf("%f;%x", population[0].fitness, population[0].chromossomes);
-        //printf("\n");
         
         end = clock();
         free(population);
