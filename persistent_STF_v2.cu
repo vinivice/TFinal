@@ -12,11 +12,12 @@
 //#define NGEN 500000
 #define MUT_PROB 0.05
 #define TESTE 256
+#define CHROMO_SIZE 256
 
 struct Individual 
 {
     float fitness;
-    unsigned int chromossomes;
+    char chromossomes[CHROMO_SIZE];
 };
 
 __device__ bool comparator (Individual i, Individual j)
@@ -35,6 +36,7 @@ void printPop(Individual *population, int popSize, int print)
     }
 }
 
+
 __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed, unsigned int *randomChromossomes, float *randomThresholds)
 {
     int id = blockIdx.x*blockDim.x + threadIdx.x;
@@ -49,11 +51,13 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
     {
         //Create population
         population[i].fitness = 0;
-        //population[i].chromossomes = curand(&state);
-        population[i].chromossomes = randomChromossomes[2 * NGEN * popSize + threadIdx.x];
+        for(int j = 0; j < CHROMO_SIZE; j++)
+        {
+            //population[i].chromossomes[j] = curand(&state)%256 - 128;
+            population[i].chromossomes[j] = randomChromossomes[(3 * NGEN + j) * popSize + threadIdx.x]%256 - 128;
+        }
     }
     __syncthreads();
-
 
     for(int g = 0; g < NGEN; g++)
     {
@@ -65,18 +69,15 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         for(int i = id; i < popSize; i+=blockDim.x)
         {
             //Calculate fitness
-            
-            unsigned int mask = 0x3FF;
-            float a = 0, b = 0, c = 0;
-            a = population[i].chromossomes & mask;
-            b = (population[i].chromossomes & (mask << 10)) >> 10;
-            c = (population[i].chromossomes & (mask << 20)) >> 20;
 
-            a = (a - 512)/100.0;
-            b = (b - 512)/100.0;
-            c = (c - 512)/100.0;
+            float subTotal = 0;
+            for(int j = 0; j < CHROMO_SIZE; j++)
+            {
+                float x = (population[i].chromossomes[j] / 128.0) * 5.0;
+                subTotal += (x*x*x*x - 16.0*x*x + 5.0*x) / 2.0;
+            }
+            population[i].fitness = 1.0 / (40.0*CHROMO_SIZE + subTotal);
 
-            population[i].fitness = 1.0 / (1 + a*a + b*b + c*c);
             atomicAdd(&totalFitness, population[i].fitness);
         }
         __syncthreads();
@@ -119,23 +120,33 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
                 }
             }
 
-            //Crossover
-            //unsigned char cutPoint = curand(&state) % 31;
-            unsigned char cutPoint = randomChromossomes[2 * popSize * g +  threadIdx.x] % 31;
-            unsigned int mask1 = 0xffffffff << cutPoint; 
-            unsigned int mask2 = 0xffffffff >> (32 - cutPoint);
-            child.fitness = 0;
-            child.chromossomes = (parents[0].chromossomes & mask1) + (parents[1].chromossomes & mask2);
- 
-            //Mutation
-            //float mutation = curand_uniform(&state);
-            float mutation = randomThresholds[3*popSize*blockDim.x*blockIdx.x + 2*popSize + threadIdx.x];
-            if(mutation < MUT_PROB)
-            {
-                //unsigned char mutPoint = curand(&state) % 30;
-                unsigned char mutPoint = randomChromossomes[2 * popSize * g + popSize + threadIdx.x] % 30;
-                child.chromossomes ^= 1 << mutPoint;
-            }
+
+                //Crossover
+                //unsigned char cutPoint = curand(&state) % (CHROMO_SIZE + 1);
+                unsigned char cutPoint = randomChromossomes[3
+ * popSize * g + threadIdx.x] % (CHROMO_SIZE + 1);
+                child.fitness = 0;
+                for(int j = 0; j < cutPoint; j++)
+                {
+                    child.chromossomes[j] = parents[0].chromossomes[j];
+                }
+
+                for(int j = cutPoint; j < CHROMO_SIZE; j++)
+                {
+                    child.chromossomes[j] = parents[1].chromossomes[j];
+                }
+
+                //Mutation
+                //float mutation = curand_uniform(&state);
+                float mutation = randomThresholds[3*popSize*blockDim.x*blockIdx.x + 2*popSize + threadIdx.x];
+                if(mutation < MUT_PROB)
+                {
+                    //int mutPoint = curand(&state) % CHROMO_SIZE;
+                    //child.chromossomes[mutPoint] = curand(&state) % 256 - 128;
+                    int mutPoint = randomChromossomes[3 * popSize * g + popSize + threadIdx.x] % CHROMO_SIZE;
+                    child.chromossomes[mutPoint] = randomChromossomes[3 * popSize * g + 2 * popSize + threadIdx.x] % 256 - 128;
+                }
+
         }
         __syncthreads();
         
@@ -153,31 +164,33 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
     }
 }
 
-__global__ void generateRandomChromossomes(int popSize, int nGen, unsigned int *randomChromossomes, unsigned int seed)
-{
+__global__ void generateRandomChromossomes(int popSize, int nGen, int chromoSize, unsigned int *randomChromossomes, unsigned int seed)
+{   
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     curandState_t state;
     curand_init(seed, id, 0, &state);
     
     //threadIdx.x ==> 1024
-    //blockIdx.x ==> ceil((2*NGEN + 1) / 1024)
-
+    //blockIdx.x ==> ceil((3*NGEN + chromoSize) / 1024)
+    
     for(int i = 0; i < popSize; i++)
     {
         int index = blockDim.x*(blockIdx.x * popSize + i) + threadIdx.x;
-        if(index < (2 * nGen + 1) * popSize)
-        {
+        if(index < (3 * nGen + chromoSize) * popSize)
+        {   
             randomChromossomes[index] = curand(&state);
         }
     }
 
 }
+
+
 __global__ void generateRandomThresholds(int popSize, int nGen, float *randomThresholds, unsigned int seed)
-{
+{   
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     curandState_t state;
     curand_init(seed, id, 0, &state);
-    
+
     //threadIdx.x ==> 1024
     //blockIdx.x ==> ceil((NGEN ) / 1024)
 
@@ -191,8 +204,8 @@ __global__ void generateRandomThresholds(int popSize, int nGen, float *randomThr
             randomThresholds[index + 2048] = curand_uniform(&state);
         }
     }
-
 }
+
 
 int main(int argc, char *argv[ ]) 
 {
@@ -222,9 +235,9 @@ int main(int argc, char *argv[ ])
 
         //Random values
         unsigned int *randomChromossomes;
-        cudaMalloc((void**) &randomChromossomes, ((2 * NGEN + 1 ) * PSIZE) * sizeof(unsigned int)); //One for creation and two for each generation
-        generateRandomChromossomes<<<(((2 * NGEN) / 1024) + 1), 1024>>>(PSIZE, NGEN, randomChromossomes, time(NULL));
- //       generateRandomChromossomes<<<1, 1024>>>(PSIZE, NGEN, randomChromossomes, time(NULL));
+        cudaMalloc((void**) &randomChromossomes, ((3 * NGEN + CHROMO_SIZE) * PSIZE) * sizeof(unsigned int)); //CHEOMO_SIZE for creation and three for each generation
+        generateRandomChromossomes<<<(((3 * NGEN + CHROMO_SIZE - 1) / 1024) + 1), 1024>>>(PSIZE, NGEN, CHROMO_SIZE, randomChromossomes, time(NULL));
+        //generateRandomChromossomes<<<1, 1024>>>(PSIZE, NGEN, randomChromossomes, time(NULL));
 
 
         float *randomThresholds;
@@ -232,10 +245,12 @@ int main(int argc, char *argv[ ])
         generateRandomThresholds<<<(((NGEN - 1) / 1024) + 1), 1024>>>(PSIZE, NGEN, randomThresholds, time(NULL));
 
 
+
         persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL), randomChromossomes, randomThresholds);
 
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
 
+     
         end = clock();
         cudaFree(maxFitness);
         if(PRINT != 0)
@@ -248,12 +263,10 @@ int main(int argc, char *argv[ ])
         }
         free(cpu_maxFitness);
 
-
         printf("\nT total(us)\t\tT geração(us)\n");
         double cpu_time_used = 1000000 * ((double) (end - start)) / CLOCKS_PER_SEC;
         printf("%f\t\t%f\n\n", cpu_time_used, cpu_time_used/NGEN);
         Ttotal += cpu_time_used;
-
     }
 
     printf("\nAvg T total(us)\t\tAvg T geração(us)\n");
