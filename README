@@ -1,0 +1,25 @@
+# Passos para iniciar os testes:
+mkdir bin
+mkdir res
+./compila
+./run_tests
+
+
+# compila armazenará os executáveis no diretório bin
+# run_tests armazenará os resultados dos testes no diretório res
+
+# Os arquivos no diretório res possuem a nomenclatura da seguinte forma:
+# <S | P | K>_<F1 | STF>_<POP>_<GER>_<ITER>
+
+# A primeira parte informa qual método, Seria, Persistente ou Kernel
+# O segundo informa qual função foi feito o teste, F1 ou Styblinski-tang
+# O terceiro é um número que indica o tamanho da população usada no teste
+# O quarto é o número de gerações do teste
+# O quinto é o total de iterações, ou seja, quantos testes serão feitos para retornar a média de tempo
+# A maior parte dos arquivos o número de iterações é 30, nos que estão com 1 estão gravados os valores de adaptação máxima de cada geração
+
+# para rodar um teste avulso: ./bin/<EXEC> <POP> <GER> <ITER> <PRINT>
+# Onde EXEC é o executável que será usado
+# Os parâmetros são iguais os dos arquivos de resultado
+# o parâmetro PRINT pode ser 0 ou 1, indicando se serão impressos os valores máximos de adaptação para cada geração
+# Os tempos retornados pelo programa estão todos em us
