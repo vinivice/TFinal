@@ -1,23 +1,26 @@
 date
 echo
 
-g++ serial_F1.cpp -o bin/serial_F1
-echo "serial_F1 pronto"
+#g++ serial_F1.cpp -o bin/serial_F1
+#echo "serial_F1 pronto"
 
-g++ serial_STF.cpp -o bin/serial_STF
-echo "serial_STF pronto"
+#g++ serial_STF.cpp -o bin/serial_STF
+#echo "serial_STF pronto"
 
-nvcc persistent_F1.cu -o bin/persistent_F1
-echo "persistent_F1 pronto"
+#nvcc persistent_F1.cu -o bin/persistent_F1
+#echo "persistent_F1 pronto"
 
-nvcc persistent_STF.cu -o bin/persistent_STF
-echo "persistent_STF pronto"
+nvcc -g persistent_F1_v2.cu -o bin/persistent_F1_v2
+echo "persistent_F1_v2 pronto"
 
-nvcc kernel_F1.cu -o bin/kernel_F1
-echo "FP F1 pronto"
+#nvcc persistent_STF.cu -o bin/persistent_STF
+#echo "persistent_STF pronto"
 
-nvcc kernel_STF.cu -o bin/kernel_STF
-echo "FP STF pronto"
+#nvcc kernel_F1.cu -o bin/kernel_F1
+#echo "FP F1 pronto"
+
+#nvcc kernel_STF.cu -o bin/kernel_STF
+#echo "FP STF pronto"
 
 echo
 date
