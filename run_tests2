@@ -1,0 +1,40 @@
+date > res/log
+
+echo Teste aumentando total de iterações >> res/log
+# Teste aumentando total de iterações
+#./bin/serial_F1 896 2000 1 0 > res2/S_F1_896_2000_1
+#./bin/serial_F1 896 20000 1 0 > res2/S_F1_896_20000_1
+
+
+./bin/persistent_F1 896 2000 1 0
+#./bin/persistent_F1 896 2000 1 0 > res2/P_F1_896_2000_1
+#./bin/persistent_F1 896 20000 1 0 > res2/P_F1_896_20000_1
+./bin/persistent_F1_v2 896 2000 1 0
+#./bin/persistent_F1_v2 896 2000 1 0 > res2/P_F1_v2_896_2000_1
+#./bin/persistent_F1_v2 896 20000 1 0 > res2/P_F1_v2_896_20000_1
+./bin/persistent_F1_v3 896 2000 1 0
+#./bin/persistent_F1_v3 896 2000 1 0 > res2/P_F1_v3_896_2000_1
+#./bin/persistent_F1_v3 896 20000 1 0 > res2/P_F1_v3_896_20000_1
+
+#./bin/kernel_F1 896 2000 1 0 > res2/K_F1_896_2000_1
+#./bin/kernel_F1 896 20000 1 0 > res2/K_F1_896_20000_1
+
+#===================================================================
+
+#./bin/serial_STF 188 2000 1 0 > res2/S_STF_188_2000_1
+#./bin/serial_STF 188 20000 1 0 > res2/S_STF_188_20000_1
+
+./bin/persistent_STF 188 2000 1 0
+#./bin/persistent_STF 188 2000 1 0 > res2/P_STF_188_2000_1
+#./bin/persistent_STF 188 20000 1 0 > res2/P_STF_188_20000_1
+./bin/persistent_STF_v2 188 2000 1 0
+#./bin/persistent_STF_v2 188 2000 1 0 > res2/P_STF_v2_188_2000_1
+#./bin/persistent_STF_v2 188 20000 1 0 > res2/P_STF_v2_188_20000_1
+./bin/persistent_STF_v3 188 2000 1 0
+#./bin/persistent_STF_v3 188 2000 1 0 > res2/P_STF_v3_188_2000_1
+#./bin/persistent_STF_v3 188 20000 1 0 > res2/P_STF_v3_188_20000_1
+
+#./bin/kernel_STF 188 2000 1 0 > res2/K_STF_188_2000_1
+#./bin/kernel_STF 188 20000 1 0 > res2/K_STF_188_20000_1
+
+date >> res/log
