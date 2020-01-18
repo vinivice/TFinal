@@ -13,7 +13,7 @@ echo
 #nvcc -g persistent_F1_v2.cu -o bin/persistent_F1_v2
 #echo "persistent_F1_v2 pronto"
 
-nvcc -Xptxas="-v" -rdc=true persistent_F1_v3.cu -o bin/persistent_F1_v3
+nvcc -Xptxas="-v" persistent_F1_v3.cu -o bin/persistent_F1_v3
 echo "persistent_F1_v3 pronto"
 
 nvcc persistent_STF.cu -o bin/persistent_STF
