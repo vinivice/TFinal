@@ -7,14 +7,14 @@ echo
 #g++ serial_STF.cpp -o bin/serial_STF
 #echo "serial_STF pronto"
 
-#nvcc persistent_F1.cu -o bin/persistent_F1
-#echo "persistent_F1 pronto"
+nvcc persistent_F1.cu -o bin/persistent_F1
+echo "persistent_F1 pronto"
 
 nvcc -g persistent_F1_v2.cu -o bin/persistent_F1_v2
 echo "persistent_F1_v2 pronto"
 
-#nvcc persistent_STF.cu -o bin/persistent_STF
-#echo "persistent_STF pronto"
+nvcc persistent_STF.cu -o bin/persistent_STF
+echo "persistent_STF pronto"
 
 nvcc persistent_STF_v2.cu -o bin/persistent_STF_v2
 echo "persistent_STF_v2 pronto"
