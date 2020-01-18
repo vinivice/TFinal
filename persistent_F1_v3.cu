@@ -1,4 +1,5 @@
 
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -39,15 +40,15 @@ void printPop(Individual *population, int popSize, int print)
 
 __device__ int lock = 0;
 
-__device__ void lockBlocks(int goal)
+/*__device__ void lockBlocks(int goal)
 {
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     __syncthreads();
     if(threadIdx.x == 0)
     {
-	printf("\nPRE_ADD\tlock: %d\tBlocks: %d\tid: %d", lock, goal, id);
+//	printf("\nPRE_ADD\tlock: %d\tBlocks: %d\tid: %d", lock, goal, id);
         atomicAdd(&lock, 1);
-	printf("\nPOS_ADD\tlock: %d\tBlocks: %d\tid: %d", lock, goal, id);
+//	printf("\nPOS_ADD\tlock: %d\tBlocks: %d\tid: %d", lock, goal, id);
         while(lock != 0)
         {
            printf("A");
@@ -57,16 +58,18 @@ __device__ void lockBlocks(int goal)
 		lock = 0;
             }
         }
-    printf("\nlock: %d\tBlocks: %d\tid: %d", lock, goal, id);
+  //  printf("\nlock: %d\tBlocks: %d\tid: %d", lock, goal, id);
     }
     __syncthreads();
 
-}
+}*/
 
 
 __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed, Individual *population, int numBlocks)
 {
+using namespace cooperative_groups;
     //printf("HERE");
+grid_group grid = this_grid();
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     Individual child;
     curandState_t state;
@@ -82,9 +85,11 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         population[i].fitness = 0;
         population[i].chromossomes = curand(&state);
     }
-    lockBlocks(numBlocks); 
+grid.sync();
 
-    printf("\nlock: %d\tBlocks: %d\tid: %d", lock, numBlocks, id);
+//    lockBlocks(numBlocks); 
+
+    //printf("\nlock: %d\tBlocks: %d\tid: %d", lock, numBlocks, id);
     
     for(int g = 0; g < NGEN; g++)
     {
@@ -92,7 +97,9 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         {
             totalFitness = 0;
         }
- lockBlocks(numBlocks);
+grid.sync();
+
+// lockBlocks(numBlocks);
 
         for(int i = id; i < popSize; i+=blockDim.x * numBlocks)
         {
@@ -111,7 +118,9 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             population[i].fitness = 1.0 / (1 + a*a + b*b + c*c);
             atomicAdd(&totalFitness, population[i].fitness);
         }
- lockBlocks(numBlocks);
+grid.sync();
+
+// lockBlocks(numBlocks);
 
 
         if(id == 0)
@@ -119,7 +128,9 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             thrust::sort(population, population + popSize, comparator);
             maxFitness[g] = population[0].fitness;
         }
- lockBlocks(numBlocks);
+grid.sync();
+
+// lockBlocks(numBlocks);
 
 
         
@@ -169,7 +180,10 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
                 child.chromossomes ^= 1 << mutPoint;
             }
         }
- lockBlocks(numBlocks);
+grid.sync();
+
+
+// lockBlocks(numBlocks);
 
 
         
@@ -182,7 +196,9 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         {
             population[i] = child;
         }
- lockBlocks(numBlocks);
+grid.sync();
+
+// lockBlocks(numBlocks);
 
 
         
@@ -191,6 +207,7 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
 
 int main(int argc, char *argv[ ]) 
 {
+    using namespace cooperative_groups;
     int PSIZE, NGEN, NIT, PRINT;
     double Ttotal = 0;
     if(argc < 5)
@@ -221,13 +238,13 @@ int main(int argc, char *argv[ ])
  //       int *lock;
    //     cudaMalloc((void**) &lock, sizeof(int));
 
-        int numBlocks = 2;
-        int numThreads = 1024;
+        int numBlocks = 1152;
+        int numThreads = 32;
 
 
  //       lockBlocks<<<numBlocks, numThreads>>>(numBlocks);
 
-/*
+
         CUdevice dev;
         cuDeviceGet(&dev,0); 
 
@@ -246,9 +263,9 @@ int main(int argc, char *argv[ ])
         args[5] = &numBlocks;
 
         cudaLaunchCooperativeKernel((void*)persistentThreads, deviceProp.multiProcessorCount*numBlocksPerSm, numThreads, args);
-*/
 
-        persistentThreads<<<numBlocks, numThreads>>>(PSIZE, NGEN, maxFitness, time(NULL), population, numBlocks);
+
+//        persistentThreads<<<numBlocks, numThreads>>>(PSIZE, NGEN, maxFitness, time(NULL), population, numBlocks);
         //persistentThreads<<<1, min(PSIZE, 1024)>>>(PSIZE, NGEN, maxFitness, time(NULL), population);
 
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
