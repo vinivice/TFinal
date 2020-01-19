@@ -22,7 +22,7 @@ echo "persistent_STF pronto"
 nvcc persistent_STF_v2.cu -o bin/persistent_STF_v2
 echo "persistent_STF_v2 pronto"
 
-nvcc persistent_STF_v3.cu -o bin/persistent_STF_v3
+nvcc -Xptxas="-v" -rdc=true -arch=sm_61 persistent_STF_v3.cu -lcuda -o bin/persistent_STF_v3
 echo "persistent_STF_v3 pronto"
 
 #nvcc kernel_F1.cu -o bin/kernel_F1

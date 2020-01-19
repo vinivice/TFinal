@@ -6,6 +6,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include <thrust/sort.h>
+#include <cooperative_groups.h>
 
 
 //#define PSIZE 10
@@ -37,15 +38,17 @@ void printPop(Individual *population, int popSize, int print)
 }
 
 
-__global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed, unsigned int *randomChromossomes, float *randomThresholds)
+__global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed, unsigned int *randomChromossomes, float *randomThresholds, Individual *population, int numBlocks)
 {
+    using namespace cooperative_groups;
+    grid_group grid = this_grid();
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     Individual child;
     curandState_t state;
     curand_init(seed, id, 0, &state);
 
     __shared__ float totalFitness;
-    extern __shared__ Individual population[];
+    //extern __shared__ Individual population[];
 
     for(int i = id; i < popSize; i+=blockDim.x)
     {
@@ -57,6 +60,7 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
             population[i].chromossomes[j] = randomChromossomes[(3 * NGEN + j) * popSize + threadIdx.x]%256 - 128;
         }
     }
+    grid.sync();
     __syncthreads();
 
     for(int g = 0; g < NGEN; g++)
@@ -187,6 +191,7 @@ __global__ void generateRandomChromossomes(int popSize, int nGen, int chromoSize
 
 __global__ void generateRandomThresholds(int popSize, int nGen, float *randomThresholds, unsigned int seed)
 {   
+    using namespace cooperative_groups;
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     curandState_t state;
     curand_init(seed, id, 0, &state);
@@ -227,7 +232,6 @@ int main(int argc, char *argv[ ])
     for(int it = 0; it < NIT; it++)
     {   
         clock_t start, end;
-        start = clock();
 
         float *maxFitness, *cpu_maxFitness;
         cudaMalloc((void**) &maxFitness, NGEN * sizeof(float));
@@ -245,13 +249,47 @@ int main(int argc, char *argv[ ])
         generateRandomThresholds<<<(((NGEN - 1) / 1024) + 1), 1024>>>(PSIZE, NGEN, randomThresholds, time(NULL));
 
 
+        Individual *population;
+        cudaMalloc((void**) &population, PSIZE * sizeof(Individual));
 
-        persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL), randomChromossomes, randomThresholds);
+        int numBlocks = 1152;
+        int numThreads = 32;
+
+        CUdevice dev;
+        cuDeviceGet(&dev,0); 
+
+        cudaDeviceProp deviceProp;
+        int numBlocksPerSm;
+        cudaGetDeviceProperties(&deviceProp, dev);
+        cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, persistentThreads, numThreads, 0);
+
+        time_t t = time(NULL);
+        void **args = ((void **) malloc(8 * sizeof(void *)));
+        args[0] = &PSIZE;
+        args[1] = &NGEN;
+        args[2] = &maxFitness;
+        args[3] = &t;
+        args[4] = &randomChromossomes;
+        args[5] = &randomThresholds;
+        args[6] = &population;
+        args[7] = &numBlocks;
+
+
+        start = clock();
+
+        cudaLaunchCooperativeKernel((void*)persistentThreads, deviceProp.multiProcessorCount*numBlocksPerSm, numThreads, args);
+
+
+
+        //persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL), randomChromossomes, randomThresholds);
+
+        cudaDeviceSynchronize();
+
+        end = clock();
 
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
 
      
-        end = clock();
         cudaFree(maxFitness);
         if(PRINT != 0)
         {

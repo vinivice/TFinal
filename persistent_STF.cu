@@ -178,19 +178,22 @@ int main(int argc, char *argv[ ])
     for(int it = 0; it < NIT; it++)
     {   
         clock_t start, end;
-        start = clock();
 
         float *maxFitness, *cpu_maxFitness;
         cudaMalloc((void**) &maxFitness, NGEN * sizeof(float));
         cpu_maxFitness = (float *) malloc(NGEN * sizeof(float));
 
+        start = clock();
 
         persistentThreads<<<1, min(PSIZE, 1024), PSIZE * sizeof(Individual)>>>(PSIZE, NGEN, maxFitness, time(NULL));
+
+        cudaDeviceSynchronize();
+
+        end = clock();
 
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
 
      
-        end = clock();
         cudaFree(maxFitness);
         if(PRINT != 0)
         {
