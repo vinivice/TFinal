@@ -61,15 +61,14 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         }
     }
     grid.sync();
-    __syncthreads();
-
+   
     for(int g = 0; g < NGEN; g++)
     {
         if(id == 0)
         {
             totalFitness = 0;
         }
-        __syncthreads();
+	grid.sync();
         for(int i = id; i < popSize; i+=blockDim.x)
         {
             //Calculate fitness
@@ -84,13 +83,13 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
 
             atomicAdd(&totalFitness, population[i].fitness);
         }
-        __syncthreads();
+	grid.sync();
         if(id == 0)
         {
             thrust::sort(population, population + popSize, comparator);
             maxFitness[g] = population[0].fitness;
         }
-        __syncthreads();
+	grid.sync();
         
         float localTotalFitness = totalFitness;
 
@@ -152,8 +151,8 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
                 }
 
         }
-        __syncthreads();
-        
+	grid.sync();
+
         if(id == 0)
         {
             child = population[0];
@@ -163,7 +162,7 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         {
             population[i] = child;
         }
-        __syncthreads();
+	grid.sync();
         
     }
 }
