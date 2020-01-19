@@ -66,9 +66,10 @@ __device__ int lock = 0;
 
 
 __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed, Individual *population, int numBlocks)
+//__global__ void persistentThreads(int popSize, int NGEN, unsigned int seed, Individual *population, int numBlocks)
 {
 using namespace cooperative_groups;
-    //printf("HERE");
+//    printf("HERE");
 grid_group grid = this_grid();
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     Individual child;
@@ -122,12 +123,13 @@ grid.sync();
 
 // lockBlocks(numBlocks);
 
-
+//printf("C");
         if(id == 0)
         {
             thrust::sort(population, population + popSize, comparator);
-            maxFitness[g] = population[0].fitness;
-        }
+	    maxFitness[g] = population[0].fitness;
+	    //printf("%d\t%f\n", g, population[0].fitness);
+	}
 grid.sync();
 
 // lockBlocks(numBlocks);
@@ -226,7 +228,6 @@ int main(int argc, char *argv[ ])
     for(int it = 0; it < NIT; it++)
     {   
         clock_t start, end;
-        start = clock();
 
         float *maxFitness, *cpu_maxFitness;
         cudaMalloc((void**) &maxFitness, NGEN * sizeof(float));
@@ -262,16 +263,23 @@ int main(int argc, char *argv[ ])
         args[4] = &population;
         args[5] = &numBlocks;
 
+//	printf("Gen\tFitness\n");
+
+	start = clock();
+
         cudaLaunchCooperativeKernel((void*)persistentThreads, deviceProp.multiProcessorCount*numBlocksPerSm, numThreads, args);
 
 
 //        persistentThreads<<<numBlocks, numThreads>>>(PSIZE, NGEN, maxFitness, time(NULL), population, numBlocks);
         //persistentThreads<<<1, min(PSIZE, 1024)>>>(PSIZE, NGEN, maxFitness, time(NULL), population);
+	
+	cudaDeviceSynchronize();
+
+	end = clock();
 
         cudaMemcpy(cpu_maxFitness, maxFitness, NGEN * sizeof(float), cudaMemcpyDeviceToHost);
-
-        end = clock();
-        //cudaFree(maxFitness);
+	  
+        cudaFree(maxFitness);
         if(PRINT != 0)
         {
             printf("Gen\tFitness\n");
