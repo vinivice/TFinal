@@ -116,7 +116,7 @@ int main(int argc, char *argv[ ])
                 //Selection
                 for(int j = 0; j < 2; j++)
                 {
-                    float p = ((float) random() / RAND_MAX ) * totalFitness;
+                    float p = ((float) random() / RAND_MAX ) * localTotalFitness;
                     float score = 0;
 
                     for(int k = 0; k < PSIZE; k++)
