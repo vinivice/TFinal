@@ -6,13 +6,14 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include <thrust/sort.h>
+#include <thrust/device_ptr.h>
 
 
 //#define PSIZE 10
 //#define NGEN 500000
 #define MUT_PROB 0.05
 #define TESTE 256
-#define VERSION SERIAL
+//#define VERSION 2
 
 struct Individual 
 {
@@ -25,9 +26,11 @@ __device__ bool comparator (Individual i, Individual j)
     return (i.fitness > j.fitness);
 }
 
-__host__ __device__ float operator+(const Individual &i, const Individual &j)
+__host__ __device__ Individual operator+(const Individual &i, const Individual &j)
 {
-    return (i.fitness + j.fitness);
+	Individual k;
+    k.fitness = (i.fitness + j.fitness);
+	return k;
 }
 
 
@@ -44,6 +47,7 @@ void printPop(Individual *population, int popSize, int print)
 
 __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsigned int seed, unsigned int *randomChromossomes, float *randomThresholds)
 {
+    volatile float forcaLoop;
     int id = blockIdx.x*blockDim.x + threadIdx.x;
     Individual child;
     curandState_t state;
@@ -64,6 +68,7 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
 
     for(int g = 0; g < NGEN; g++)
     {
+	forcaLoop = 0;
         if(id == 0)
         {
             totalFitness = 0;
@@ -91,15 +96,30 @@ __global__ void persistentThreads(int popSize, int NGEN, float *maxFitness, unsi
         {
             thrust::sort(population, population + popSize, comparator);
             maxFitness[g] = population[0].fitness;
-            #if VERSION==SERIAL
+            #if VERSION == 1
             Individual  teste;
-            teste.fitness = 0;
-            for (int z = 0; z < popSize; z++)
-            {
-                teste.fitness = teste + population[z];
-            }
-            //printf("%f\t%f\n", totalFitness, teste.fitness);
-            #endif
+            for(int zz = 0; zz < 10000; zz++)
+	    {
+		    teste.fitness = 0;
+	    	for (int z = 0; z < popSize; z++)
+            	{
+                	teste = teste + population[z];
+            	}
+		forcaLoop += teste.fitness;
+	    }            
+	    ///printf("AAA%f\t%f\n", totalFitness, teste.fitness);
+            #elif VERSION == 2
+            Individual teste;
+		thrust::device_ptr<Individual> ptr1(population);
+		thrust::device_ptr<Individual> ptr2(population+popSize);
+            for(int zz = 0; zz < 10000; zz++)
+	    {
+		    teste.fitness = 0;
+		    teste = thrust::reduce(thrust::device, ptr1, ptr2, teste);
+		forcaLoop += teste.fitness;
+	    }
+	    //printf("BBB%f\t%f\n", totalFitness, teste.fitness);
+	    #endif
         }
         __syncthreads();
         

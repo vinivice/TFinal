@@ -1,4 +1,8 @@
-echo teste
-bin/persistent_F1_v2_teste 896 20000 1 0
 echo original
-bin/persistent_F1_v2 896 20000 1 0
+bin/persistent_F1_v2 896 $1 1 $2
+nvcc -DVERSION=1 persistent_F1_v2_teste.cu -o bin/persistent_F1_v2_teste
+echo teste SERIAL
+bin/persistent_F1_v2_teste 896 $1 1 $2
+nvcc -DVERSION=2 persistent_F1_v2_teste.cu -o bin/persistent_F1_v2_teste
+echo teste THRUST
+bin/persistent_F1_v2_teste 896 $1 1 $2
