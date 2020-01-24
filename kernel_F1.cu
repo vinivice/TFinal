@@ -157,7 +157,6 @@ int main(int argc, char *argv[ ])
     for(int it = 0; it < NIT; it++)
     {
         clock_t start, end;
-        start = clock();
         //Init variables
 
         Individual *population, *nextPopulation, *swap;
@@ -175,6 +174,8 @@ int main(int argc, char *argv[ ])
 
         float *totalFitness;
         cudaMalloc((void**) &totalFitness, sizeof(float));
+
+	start = clock();
 
         //Create population
         createPopulation<<<ceil(PSIZE/1024.0), min(PSIZE, 1024)>>>(population, time(NULL), states);

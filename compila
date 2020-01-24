@@ -1,11 +1,11 @@
 date
 echo
 
-#g++ serial_F1.cpp -o bin/serial_F1
-#echo "serial_F1 pronto"
+g++ serial_F1.cpp -o bin/serial_F1
+echo "serial_F1 pronto"
 
-#g++ serial_STF.cpp -o bin/serial_STF
-#echo "serial_STF pronto"
+g++ serial_STF.cpp -o bin/serial_STF
+echo "serial_STF pronto"
 
 nvcc -Xptxas="-v" persistent_F1.cu -o bin/persistent_F1
 echo "persistent_F1 pronto"
@@ -25,11 +25,11 @@ echo "persistent_STF_v2 pronto"
 nvcc -Xptxas="-v" -rdc=true -arch=sm_61 persistent_STF_v3.cu -lcuda -o bin/persistent_STF_v3
 echo "persistent_STF_v3 pronto"
 
-#nvcc kernel_F1.cu -o bin/kernel_F1
-#echo "FP F1 pronto"
+nvcc kernel_F1.cu -o bin/kernel_F1
+echo "FP F1 pronto"
 
-#nvcc kernel_STF.cu -o bin/kernel_STF
-#echo "FP STF pronto"
+nvcc kernel_STF.cu -o bin/kernel_STF
+echo "FP STF pronto"
 
 echo
 date

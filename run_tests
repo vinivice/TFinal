@@ -1,90 +1,73 @@
-date > res/log
+date > res2/log
 
-echo Testes aumentando total de indivíduos >> res/log
+echo Testes aumentando total de indivíduos >> res2/log
 # Testes aumentando total de indivíduos
-./bin/serial_F1 32 2000 30 0 > res/S_F1_32_2000_30
-./bin/serial_F1 64 2000 30 0 > res/S_F1_64_2000_30
-./bin/serial_F1 256 2000 30 0 > res/S_F1_256_2000_30
-./bin/serial_F1 896 2000 30 0 > res/S_F1_896_2000_30
 
 
-./bin/persistent_F1 32 2000 30 0 > res/P_F1_32_2000_30
-./bin/persistent_F1 64 2000 30 0 > res/P_F1_64_2000_30
-./bin/persistent_F1 256 2000 30 0 > res/P_F1_256_2000_30
-./bin/persistent_F1 896 2000 30 0 > res/P_F1_896_2000_30
+#./bin/persistent_F1 32 2000 1 0 > res2/P_F1_32_2000_1
+#./bin/persistent_F1 64 2000 1 0 > res2/P_F1_64_2000_1
+#./bin/persistent_F1 256 2000 1 0 > res2/P_F1_256_2000_1
+
+#./bin/persistent_F1_v2 32 2000 1 0 > res2/P_F1_v2_32_2000_1
+#./bin/persistent_F1_v2 64 2000 1 0 > res2/P_F1_v2_64_2000_1
+#./bin/persistent_F1_v2 256 2000 1 0 > res2/P_F1_v2_256_2000_1
+
+#./bin/persistent_F1_v3 32 2000 1 0 > res2/P_F1_v3_32_2000_1
+#./bin/persistent_F1_v3 64 2000 1 0 > res2/P_F1_v3_64_2000_1
+#./bin/persistent_F1_v3 256 2000 1 0 > res2/P_F1_v3_256_2000_1
 
 
-./bin/kernel_F1 32 2000 30 0 > res/K_F1_32_2000_30
-./bin/kernel_F1 64 2000 30 0 > res/K_F1_64_2000_30
-./bin/kernel_F1 256 2000 30 0 > res/K_F1_256_2000_30
-./bin/kernel_F1 896 2000 30 0 > res/K_F1_896_2000_30
+#./bin/kernel_F1 32 2000 1 0 > res2/K_F1_32_2000_1
+#./bin/kernel_F1 64 2000 1 0 > res2/K_F1_64_2000_1
+#./bin/kernel_F1 256 2000 1 0 > res2/K_F1_256_2000_1
 
 #===================================================================
 
-./bin/serial_STF 24 2000 30 0 > res/S_STF_24_2000_30
-./bin/serial_STF 47 2000 30 0 > res/S_STF_47_2000_30
-./bin/serial_STF 94 2000 30 0 > res/S_STF_94_2000_30
-./bin/serial_STF 188 2000 30 0 > res/S_STF_188_2000_30
+#./bin/persistent_STF 24 2000 1 0 > res2/P_STF_24_2000_1
+#./bin/persistent_STF 47 2000 1 0 > res2/P_STF_47_2000_1
+#./bin/persistent_STF 94 2000 1 0 > res2/P_STF_94_2000_1
 
+#./bin/persistent_STF_v2 24 2000 1 0 > res2/P_STF_v2_24_2000_1
+#./bin/persistent_STF_v2 47 2000 1 0 > res2/P_STF_v2_47_2000_1
+#./bin/persistent_STF_v2 94 2000 1 0 > res2/P_STF_v2_94_2000_1
 
-./bin/persistent_STF 24 2000 30 0 > res/P_STF_24_2000_30
-./bin/persistent_STF 47 2000 30 0 > res/P_STF_47_2000_30
-./bin/persistent_STF 94 2000 30 0 > res/P_STF_94_2000_30
-./bin/persistent_STF 188 2000 30 0 > res/P_STF_188_2000_30
+#./bin/persistent_STF_v3 24 2000 1 0 > res2/P_STF_v3_24_2000_1
+#./bin/persistent_STF_v3 47 2000 1 0 > res2/P_STF_v3_47_2000_1
+#./bin/persistent_STF_v3 94 2000 1 0 > res2/P_STF_v3_94_2000_1
 
+#./bin/kernel_STF 24 2000 1 0 > res2/K_STF_24_2000_1
+#./bin/kernel_STF 47 2000 1 0 > res2/K_STF_47_2000_1
+#./bin/kernel_STF 94 2000 1 0 > res2/K_STF_94_2000_1
 
-./bin/kernel_STF 24 2000 30 0 > res/K_STF_24_2000_30
-./bin/kernel_STF 47 2000 30 0 > res/K_STF_47_2000_30
-./bin/kernel_STF 94 2000 30 0 > res/K_STF_94_2000_30
-./bin/kernel_STF 188 2000 30 0 > res/K_STF_188_2000_30
-
-echo Teste aumentando total de iterações >> res/log
+echo Teste aumentando total de iterações >> res2/log
 # Teste aumentando total de iterações
-./bin/serial_F1 896 2 30 0 > res/S_F1_896_2_30
-./bin/serial_F1 896 20 30 0 > res/S_F1_896_20_30
-./bin/serial_F1 896 200 30 0 > res/S_F1_896_200_30
-./bin/serial_F1 896 20000 30 0 > res/S_F1_896_20000_30
+
+#./bin/serial_F1 8960 2000 1 0 > res2/S_F1_8960_2000_1
+#./bin/serial_F1 89600 200 1 0 > res2/S_F1_89600_200_1
+
+#./bin/serial_STF 1880 2000 1 0 > res2/S_STF_1880_2000_1
+#./bin/serial_STF 18800 200 1 0 > res2/S_STF_18800_200_1
 
 
-./bin/persistent_F1 896 2 30 0 > res/P_F1_896_2_30
-./bin/persistent_F1 896 20 30 0 > res/P_F1_896_20_30
-./bin/persistent_F1 896 200 30 0 > res/P_F1_896_200_30
-./bin/persistent_F1 896 20000 30 0 > res/P_F1_896_20000_30
+./bin/serial_F1 896 2 1 0 > res2/S_F1_896_2_1
+./bin/serial_F1 896 20 1 0 > res2/S_F1_896_20_1
+./bin/serial_F1 896 200 1 0 > res2/S_F1_896_200_1
+./bin/serial_F1 896 2000 1 0 > res2/S_F1_896_2000_1
+./bin/serial_F1 896 20000 1 0 > res2/S_F1_896_20000_1
+
+./bin/serial_F1 32 2000 1 0 > res2/S_F1_32_2000_1
+./bin/serial_F1 64 2000 1 0 > res2/S_F1_64_2000_1
+./bin/serial_F1 256 2000 1 0 > res2/S_F1_256_2000_1
 
 
-./bin/kernel_F1 896 2 30 0 > res/K_F1_896_2_30
-./bin/kernel_F1 896 20 30 0 > res/K_F1_896_20_30
-./bin/kernel_F1 896 200 30 0 > res/K_F1_896_200_30
-./bin/kernel_F1 896 20000 30 0 > res/K_F1_896_20000_30
-
-#===================================================================
-
-./bin/serial_STF 188 2 30 0 > res/S_STF_188_2_30
-./bin/serial_STF 188 20 30 0 > res/S_STF_188_20_30
-./bin/serial_STF 188 200 30 0 > res/S_STF_188_200_30
-./bin/serial_STF 188 20000 30 0 > res/S_STF_188_20000_30
-
-./bin/persistent_STF 188 2 30 0 > res/P_STF_188_2_30
-./bin/persistent_STF 188 20 30 0 > res/P_STF_188_20_30
-./bin/persistent_STF 188 200 30 0 > res/P_STF_188_200_30
-./bin/persistent_STF 188 20000 30 0 > res/P_STF_188_20000_30
+./bin/serial_STF 188 2 1 0 > res2/S_STF_188_2_1
+./bin/serial_STF 188 20 1 0 > res2/S_STF_188_20_1
+./bin/serial_STF 188 200 1 0 > res2/S_STF_188_200_1
+./bin/serial_STF 188 2000 1 0 > res2/S_STF_188_2000_1
+./bin/serial_STF 188 20000 1 0 > res2/S_STF_188_20000_1
 
 
-./bin/kernel_STF 188 2 30 0 > res/K_STF_188_2_30
-./bin/kernel_STF 188 20 30 0 > res/K_STF_188_20_30
-./bin/kernel_STF 188 200 30 0 > res/K_STF_188_200_30
-./bin/kernel_STF 188 20000 30 0 > res/K_STF_188_20000_30
-
-echo Teste de perfil de aumento de fitness >> res/log
-# Teste de perfil de aumento de fitness
-./bin/serial_F1 896 200 1 1 > res/S_F1_896_200_1
-./bin/persistent_F1 896 200 1 1 > res/P_F1_896_200_1
-./bin/kernel_F1 896 200 1 1 > res/K_F1_896_200_1
-
-#===================================================================
-
-./bin/serial_STF 188 200 1 1 > res/S_STF_188_200_1
-./bin/persistent_STF 188 200 1 1 > res/P_STF_188_200_1
-./bin/kernel_STF 188 200 1 1 > res/K_STF_188_200_1
-
-date >> res/log
+./bin/serial_STF 24 2000 1 0 > res2/S_STF_24_2000_1
+./bin/serial_STF 47 2000 1 0 > res2/S_STF_47_2000_1
+./bin/serial_STF 94 2000 1 0 > res2/S_STF_94_2000_1
+date >> res2/log
