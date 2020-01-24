@@ -163,18 +163,25 @@ int main(int argc, char *argv[ ])
 
     for(int it = 0; it < NIT; it++)
     {
+        //printf("ANTES");
         clock_t start, end;
         //Init variables
 
-        Population *population, *nextPopulation, *swap;
+        Population *population, *nextPopulation, *swap, *population_h, *nextPopulation_h;
+
+        population_h = (Population *) malloc(sizeof(Population));
+        nextPopulation_h = (Population *) malloc(sizeof(Population));
 
         cudaMalloc((void**) &population, sizeof(Population));
         cudaMalloc((void**) &nextPopulation, sizeof(Population));
 
-        cudaMalloc((void**) population->fitness, PSIZE * sizeof(float));
-        cudaMalloc((void**) population->chromossomes, PSIZE * sizeof(unsigned int));
-        cudaMalloc((void**) nextPopulation->fitness, PSIZE * sizeof(float));
-        cudaMalloc((void**) nextPopulation->chromossomes, PSIZE * sizeof(unsigned int));
+        cudaMalloc((void**) &(population_h->fitness), PSIZE * sizeof(float));
+        cudaMalloc((void**) &(population_h->chromossomes), PSIZE * sizeof(unsigned int));
+        cudaMalloc((void**) &(nextPopulation_h->fitness), PSIZE * sizeof(float));
+        cudaMalloc((void**) &(nextPopulation_h->chromossomes), PSIZE * sizeof(unsigned int));
+
+        cudaMemcpy(population, population_h, sizeof(Population), cudaMemcpyHostToDevice);
+        cudaMemcpy(nextPopulation, nextPopulation_h, sizeof(Population), cudaMemcpyHostToDevice);
 
         curandState_t *states;
         cudaMalloc((void**) &states, PSIZE * sizeof(curandState_t));
@@ -189,8 +196,10 @@ int main(int argc, char *argv[ ])
 
 	start = clock();
 
+        //printf("marco0");
         //Create population
         createPopulation<<<ceil(PSIZE/1024.0), min(PSIZE, 1024)>>>(population, time(NULL), states);
+        //printf("marco1");
 
         float const zero = 0.0f;
         for(int i = 0; i < NGEN; i++)
@@ -198,17 +207,26 @@ int main(int argc, char *argv[ ])
             cudaMemcpy(totalFitness, &zero, sizeof(float), cudaMemcpyHostToDevice);
             //Calculate fitness
             fitness<<<PSIZE, 3>>>(population, totalFitness);
+            //printf("marco2");
 
             //thrust::device_ptr<Population> dev_ptr_population(population);
             //thrust::sort(dev_ptr_population, dev_ptr_population + PSIZE);
-            thrust::sort_by_key(population->fitness, population->fitness + PSIZE, population->chromossomes);
-            cudaMemcpy(&maxFitness[i], &(population->fitness[0]), sizeof(float), cudaMemcpyDeviceToHost);
+            thrust::device_ptr<float> dev_ptr_fitness(population_h->fitness);
+            thrust::device_ptr<unsigned int> dev_ptr_chromossomes(population_h->chromossomes);
+            thrust::sort_by_key(dev_ptr_fitness, dev_ptr_fitness + PSIZE, dev_ptr_chromossomes, thrust::greater<float>());
+            cudaMemcpy(&maxFitness[i], &(population_h->fitness[0]), sizeof(float), cudaMemcpyDeviceToHost);
 
+            //printf("marco3");
             reproduce<<<ceil(PSIZE/1024.0), min(PSIZE, 1024)>>>(population, nextPopulation, PSIZE, totalFitness, states);
+        //printf("marco4");
                 
             swap = population;
             population = nextPopulation;
             nextPopulation = swap;
+
+            swap = population_h;
+            population_h = nextPopulation_h;
+            nextPopulation_h = swap;
         }
   
         end = clock();

@@ -25,8 +25,8 @@ echo
 #nvcc -Xptxas="-v" -rdc=true -arch=sm_61 persistent_STF_v3.cu -lcuda -o bin/persistent_STF_v3
 #echo "persistent_STF_v3 pronto"
 
-nvcc kernel_F1.cu -o bin/kernel_F1
-echo "FP F1 pronto"
+#nvcc kernel_F1.cu -o bin/kernel_F1
+#echo "FP F1 pronto"
 
 nvcc kernel_F1_SoA.cu -o bin/kernel_F1_SoA
 echo "FP F1 SoA pronto"

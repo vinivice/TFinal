@@ -1,0 +1,4 @@
+echo SoA
+bin/kernel_F1_SoA 896 2000 1 0
+echo AoS
+bin/kernel_F1 896 2000 1 0
