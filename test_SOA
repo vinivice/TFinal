@@ -1,4 +1,14 @@
-echo SoA
+echo "!!!SoA => 8960"
+bin/kernel_F1_SoA 8960 2000 1 0
+echo "!!!AoS => 8960"
+bin/kernel_F1 8960 2000 1 0
+
+echo "!!!SoA => 896"
 bin/kernel_F1_SoA 896 2000 1 0
-echo AoS
+echo "!!!AoS => 896"
 bin/kernel_F1 896 2000 1 0
+
+echo "!!!SoA => 256"
+bin/kernel_F1_SoA 256 2000 1 0
+echo "!!!AoS => 256"
+bin/kernel_F1 256 2000 1 0

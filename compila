@@ -10,8 +10,8 @@ echo
 #nvcc -Xptxas="-v" persistent_F1.cu -o bin/persistent_F1
 #echo "persistent_F1 pronto"
 
-#nvcc -g persistent_F1_v2.cu -o bin/persistent_F1_v2
-#echo "persistent_F1_v2 pronto"
+nvcc -g persistent_F1_v2.cu -o bin/persistent_F1_v2
+echo "persistent_F1_v2 pronto"
 
 #nvcc -Xptxas="-v" -rdc=true -arch=sm_61 persistent_F1_v3.cu -lcuda -o bin/persistent_F1_v3
 #echo "persistent_F1_v3 pronto"
@@ -28,8 +28,8 @@ echo
 #nvcc kernel_F1.cu -o bin/kernel_F1
 #echo "FP F1 pronto"
 
-nvcc kernel_F1_SoA.cu -o bin/kernel_F1_SoA
-echo "FP F1 SoA pronto"
+#nvcc kernel_F1_SoA.cu -o bin/kernel_F1_SoA
+#echo "FP F1 SoA pronto"
 
 #nvcc kernel_STF.cu -o bin/kernel_STF
 #echo "FP STF pronto"

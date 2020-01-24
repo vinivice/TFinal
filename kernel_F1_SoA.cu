@@ -105,7 +105,6 @@ __global__ void reproduce(Population *population, Population *nextPopulation, in
             score += population->fitness[k];
             if(p < score)
             {
-		//HERE!!!!!!!!!!!!
                 parents[j] = population->chromossomes[k];
                 localTotalFitness -= population->fitness[k];
                 temp = k;
